@@ -120,7 +120,7 @@ class SpellInfoPane(ttk.Frame):
         self.lbl_concentration['text'] = 'Concentration' if spell_info['concentration'] else ''
         self.lbl_components['text'] = spell_info['components']
         # Updating the text boxes
-        self.txt_components.update_text_box(spell_info['component-text'])
+        self.txt_components.update_text_box(spell_info['component-text'], keep_tags=True)
 
 
 class ExtendedTextBox(tk.Text):
@@ -187,12 +187,14 @@ class ExtendedTextBox(tk.Text):
             for (start_index, end_index) in zip(tag_ranges[::2],tag_ranges[1::2]):
                 self.tag_add(tag_name, start_index, end_index)
 
-    def update_text_box(self, new_text: str):
-        saved_tags = self.extract_text_tags()
+    def update_text_box(self, new_text: str, keep_tags = False):
+        if keep_tags:
+            saved_tags = self.extract_text_tags()
         self['state'] = 'normal'
         self.delete('1.0','end')
         self.insert('1.0',new_text)
-        self.apply_text_tags(saved_tags)
+        if keep_tags:
+            self.apply_text_tags(saved_tags)
         self['state'] = 'disabled'
 
 
