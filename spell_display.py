@@ -152,9 +152,11 @@ def apply_text_tags(text_box: tk.Text, tag_list: List[Tuple[str,...]]):
     '''
     Apply a list of tags to a text box.
 
-    The tags in the list are all applied to the text box.
+    The tags in the list are all applied to the text box for the 
+    specified ranges. The tags must be configured elsewhere to
+    produce a formatting effect.
 
-    Example input:
+    Example tag_list input:
 
     [('bold', '1.0', '1.5', '2.0', 2.7'),
      ('centering', '1.0', '3.0')]
