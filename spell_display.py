@@ -1,15 +1,22 @@
 import tkinter as tk
 import tkinter.ttk as ttk
+from typing import Dict, List
 
 spell_names = ["Poof", "Zap", "Alakazam", "Abracadabra", "Disintegrate", "Wish", "Fireball", "Speak with Animals", "Bless", "Augury", "Arms of Hadar", "Shillelagh", "Leomund's Tiny Hut", "Cure Wounds", "Mass Cure Wounds"]
 spell_names = sorted(spell_names)
 
-
-# Sets up the styles in the app
-# s = ttk.Style()
-# s.configure('SpellInfo.TLabel', background='beige')
-# s.configure('Emph.SpellInfo.TLabel', font='-size 10 -slant italic')
-# s.configure('SpellTitle.TLabel', background='beige', font='20')
+spell_data = {  'name': 'Bless',
+                'ritual': False,
+                'level': 1,
+                'school': 'Enchantment',
+                'cast-time': '1 action',
+                'duration': '1 minute',
+                'range': '30 feet',
+                'concentration': True,
+                'components': 'VSM',
+                'component-text': 'A sprinkling of holy water',
+                'description': "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw.",
+                'higher-levels': "When you cast a this spell using a spell slot of 2nd level or higher, you can target one additional creature for each slot level above 1st."}
 
 class MainApplication(ttk.Frame):
     def __init__(self, parent):
@@ -63,6 +70,7 @@ class SpellInfoPane(ttk.Frame):
         self.parent = parent
         self.configure_layout()
         self.add_widgets()
+        self.update_spell_info(spell_data)
 
     def configure_layout(self):
         # Two equal width, resizable columns
@@ -82,6 +90,9 @@ class SpellInfoPane(ttk.Frame):
         self.txt_description = tk.Text(self, width=50, borderwidth=0, background="beige", font='TkTextFont', wrap="word")
         # Filling the text boxes with example text
         self.txt_components.insert("1.0","Several small pieces of a broken bowl and a ruby worth at least 100 gp, which the spell consumes")
+        self.txt_components.tag_add('centering', '1.0', 'end')
+        self.txt_components.tag_configure('centering', justify=tk.CENTER)
+        self.txt_components['state'] = 'disabled'
         self.txt_description.insert("1.0","You throw a bowl full of porridge into the air. Each creature within 5 feet must make a Dexterity saving throw or be covered in porridge.\n\nThis spell does not affect gelatinous cubes.")
         self.txt_description['state'] = 'disabled'
         # Placing the widgets on the grid
@@ -96,6 +107,63 @@ class SpellInfoPane(ttk.Frame):
         self.lbl_components.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
         self.txt_components.grid(row=6, column=0, columnspan=2, padx=5, pady=2, sticky="nesw")
         self.txt_description.grid(row=7, column=0, columnspan=2, padx=5, pady=10, sticky="nesw")
+
+    def update_spell_info(self, spell_info: Dict):
+        # Updating the labels
+        self.lbl_name['text'] = spell_info['name']
+        self.lbl_ritual['text'] = 'Ritual' if spell_info['ritual'] else ''
+        self.lbl_level['text'] = f"{make_ordinal(spell_info['level'])}-level"
+        self.lbl_school['text'] = spell_info['school']
+        self.lbl_cast_time['text'] = spell_info['cast-time']
+        self.lbl_range['text'] = spell_info['range']
+        self.lbl_duration['text'] = spell_info['duration']
+        self.lbl_concentration['text'] = 'Concentration' if spell_info['concentration'] else ''
+        self.lbl_components['text'] = spell_info['components']
+        # Updating the text boxes
+        update_text_box(self.txt_components, spell_info['component-text'])
+        self.txt_components.tag_add('centering', '1.0', 'end')
+        self.txt_components.tag_configure('centering', justify=tk.CENTER)
+
+def extract_text_tags(text_box: tk.Text) -> List:
+    tag_names = list(text_box.tag_names())
+    tag_names.remove('sel')
+    tag_ranges = [text_box.tag_ranges(tag) for tag in tag_names]
+    saved_tags = [tuple([tag_name]) + tag_range for (tag_name, tag_range) in zip(tag_names, tag_ranges)]
+    return saved_tags
+
+def apply_text_tags(text_box: tk.Text, tag_list: list):
+    for tag in tag_list:
+        tag_name = tag[0]
+        tag_ranges = tag[1:]
+        for (start_index, end_index) in zip(tag_ranges[::2],tag_ranges[1::2]):
+            text_box.tag_add(tag_name, start_index, end_index)
+
+def update_text_box(text_box: tk.Text, new_text: str):
+    saved_tags = extract_text_tags(text_box)
+    text_box['state'] = 'normal'
+    text_box.delete('1.0','end')
+    text_box.insert('1.0',new_text)
+    apply_text_tags(text_box, saved_tags)
+    text_box['state'] = 'disabled'
+
+def make_ordinal(n):
+    '''
+    Convert an integer into its ordinal representation::
+
+        make_ordinal(0)   => '0th'
+        make_ordinal(3)   => '3rd'
+        make_ordinal(122) => '122nd'
+        make_ordinal(213) => '213th'
+
+    by Florian Brucker (https://stackoverflow.com/a/50992575)
+    can be reused under the CC BY-SA 4.0 license (https://creativecommons.org/licenses/by-sa/4.0/)
+    '''
+    n = int(n)
+    if 11 <= (n % 100) <= 13:
+        suffix = 'th'
+    else:
+        suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
+    return str(n) + suffix
 
 if __name__ == "__main__":
     root = tk.Tk()
