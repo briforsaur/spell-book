@@ -87,7 +87,7 @@ class SpellInfoPane(ttk.Frame):
         self.lbl_concentration = ttk.Label(self, text="Concentration", anchor=tk.CENTER, style='SpellInfo.TLabel')
         self.lbl_components = ttk.Label(self, text="VSM*", anchor=tk.CENTER, style='SpellInfo.TLabel')
         self.txt_components = ExtendedTextBox(self, width=50, height=2, borderwidth=0, background="beige", font='TkTextFont', wrap="word")
-        self.txt_description = tk.Text(self, width=50, borderwidth=0, background="beige", font='TkTextFont', wrap="word")
+        self.txt_description = ExtendedTextBox(self, width=50, borderwidth=0, background="beige", font='TkTextFont', wrap="word")
         # Filling the text boxes with example text
         self.txt_components.insert("1.0","Several small pieces of a broken bowl and a ruby worth at least 100 gp, which the spell consumes")
         self.txt_components.tag_add('centering', '1.0', 'end')
@@ -121,6 +121,10 @@ class SpellInfoPane(ttk.Frame):
         self.lbl_components['text'] = spell_info['components']
         # Updating the text boxes
         self.txt_components.update_text_box(spell_info['component-text'], keep_tags=True)
+        self.txt_description.update_text_box(spell_info['description'])
+        self.txt_description['state'] = 'normal'
+        self.txt_description.insert('end', '\n\nAt Higher Levels. ' + spell_info['higher-levels'])
+        self.txt_description['state'] = 'disabled'
 
 
 class ExtendedTextBox(tk.Text):
