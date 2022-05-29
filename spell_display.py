@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 spell_names = ["Poof", "Zap", "Alakazam", "Abracadabra", "Disintegrate", "Wish", "Fireball", "Speak with Animals", "Bless", "Augury", "Arms of Hadar", "Shillelagh", "Leomund's Tiny Hut", "Cure Wounds", "Mass Cure Wounds"]
 spell_names = sorted(spell_names)
@@ -124,14 +124,45 @@ class SpellInfoPane(ttk.Frame):
         self.txt_components.tag_add('centering', '1.0', 'end')
         self.txt_components.tag_configure('centering', justify=tk.CENTER)
 
-def extract_text_tags(text_box: tk.Text) -> List:
+def extract_text_tags(text_box: tk.Text) -> List[Tuple[str,...]]:
+    '''
+    Extract all tags applied to a text box except the "selection" tag.
+
+    The tags are returned as a list of tuples where the first element 
+    is a character string of the tag name, and the following elements 
+    are pairs of start and end indices of the text ranges where the tag
+    is applied.
+
+    Example output:
+
+    [('bold', '1.0', '1.5', '2.0', 2.7'),
+     ('centering', '1.0', '3.0')]
+    
+    In the example, the 'bold' tag has been applied to two text ranges,
+    (1.0 to 1.5 and 2.0 to 2.7) while the 'centering' tag has been 
+    applied to a single range.
+    '''
     tag_names = list(text_box.tag_names())
     tag_names.remove('sel')
     tag_ranges = [text_box.tag_ranges(tag) for tag in tag_names]
     saved_tags = [tuple([tag_name]) + tag_range for (tag_name, tag_range) in zip(tag_names, tag_ranges)]
     return saved_tags
 
-def apply_text_tags(text_box: tk.Text, tag_list: list):
+def apply_text_tags(text_box: tk.Text, tag_list: List[Tuple[str,...]]):
+    '''
+    Apply a list of tags to a text box.
+
+    The tags in the list are all applied to the text box.
+
+    Example input:
+
+    [('bold', '1.0', '1.5', '2.0', 2.7'),
+     ('centering', '1.0', '3.0')]
+    
+    In the example, the 'bold' tag will be applied to two text ranges,
+    (1.0 to 1.5 and 2.0 to 2.7) while the 'centering' tag will be
+    applied to a single range.
+    '''
     for tag in tag_list:
         tag_name = tag[0]
         tag_ranges = tag[1:]
