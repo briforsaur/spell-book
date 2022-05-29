@@ -86,7 +86,7 @@ class SpellInfoPane(ttk.Frame):
         self.lbl_duration = ttk.Label(self, text="Duration: Instantaneous", anchor=tk.CENTER, style='SpellInfo.TLabel')
         self.lbl_concentration = ttk.Label(self, text="Concentration", anchor=tk.CENTER, style='SpellInfo.TLabel')
         self.lbl_components = ttk.Label(self, text="VSM*", anchor=tk.CENTER, style='SpellInfo.TLabel')
-        self.txt_components = tk.Text(self, width=50, height=2, borderwidth=0, background="beige", font='TkTextFont', wrap="word")
+        self.txt_components = ExtendedTextBox(self, width=50, height=2, borderwidth=0, background="beige", font='TkTextFont', wrap="word")
         self.txt_description = tk.Text(self, width=50, borderwidth=0, background="beige", font='TkTextFont', wrap="word")
         # Filling the text boxes with example text
         self.txt_components.insert("1.0","Several small pieces of a broken bowl and a ruby worth at least 100 gp, which the spell consumes")
@@ -120,64 +120,81 @@ class SpellInfoPane(ttk.Frame):
         self.lbl_concentration['text'] = 'Concentration' if spell_info['concentration'] else ''
         self.lbl_components['text'] = spell_info['components']
         # Updating the text boxes
-        update_text_box(self.txt_components, spell_info['component-text'])
-        self.txt_components.tag_add('centering', '1.0', 'end')
-        self.txt_components.tag_configure('centering', justify=tk.CENTER)
+        self.txt_components.update_text_box(spell_info['component-text'])
 
-def extract_text_tags(text_box: tk.Text) -> List[Tuple[str,...]]:
+
+class ExtendedTextBox(tk.Text):
+    '''A text box with added useful methods.
+
+    ExtendedTextBox is a subclass of the Tkinter Text widget. It adds the 
+    following methods to make handling tags and text easier:
+
+    extract_text_tags()
+
+    apply_text_tags(tag_list)
+
+    update_text_box(new_text)
     '''
-    Extract all tags applied to a text box except the "selection" tag.
 
-    The tags are returned as a list of tuples where the first element 
-    is a character string of the tag name, and the following elements 
-    are pairs of start and end indices of the text ranges where the tag
-    is applied.
-
-    Example output:
-
-    [('bold', '1.0', '1.5', '2.0', 2.7'),
-     ('centering', '1.0', '3.0')]
+    def __init__(self, parent, **keywords):
+        tk.Text.__init__(self, parent, **keywords)
+        self.parent = parent
     
-    In the example, the 'bold' tag has been applied to two text ranges,
-    (1.0 to 1.5 and 2.0 to 2.7) while the 'centering' tag has been 
-    applied to a single range.
-    '''
-    tag_names = list(text_box.tag_names())
-    tag_names.remove('sel')
-    tag_ranges = [text_box.tag_ranges(tag) for tag in tag_names]
-    saved_tags = [tuple([tag_name]) + tag_range for (tag_name, tag_range) in zip(tag_names, tag_ranges)]
-    return saved_tags
+    def extract_text_tags(self) -> List[Tuple[str,...]]:
+        '''
+        Extract all tags applied to this text box except the "selection" tag.
 
-def apply_text_tags(text_box: tk.Text, tag_list: List[Tuple[str,...]]):
-    '''
-    Apply a list of tags to a text box.
+        The tags are returned as a list of tuples where the first element 
+        is a character string of the tag name, and the following elements 
+        are pairs of start and end indices of the text ranges where the tag
+        is applied.
 
-    The tags in the list are all applied to the text box for the 
-    specified ranges. The tags must be configured elsewhere to
-    produce a formatting effect.
+        Example output:
 
-    Example tag_list input:
-
-    [('bold', '1.0', '1.5', '2.0', 2.7'),
-     ('centering', '1.0', '3.0')]
+        [('bold', '1.0', '1.5', '2.0', 2.7'),
+        ('centering', '1.0', '3.0')]
+        
+        In the example, the 'bold' tag has been applied to two text ranges,
+        (1.0 to 1.5 and 2.0 to 2.7) while the 'centering' tag has been 
+        applied to a single range.
+        '''
+        tag_names = list(self.tag_names())
+        tag_names.remove('sel')
+        tag_ranges = [self.tag_ranges(tag) for tag in tag_names]
+        saved_tags = [tuple([tag_name]) + tag_range for (tag_name, tag_range) in zip(tag_names, tag_ranges)]
+        return saved_tags
     
-    In the example, the 'bold' tag will be applied to two text ranges,
-    (1.0 to 1.5 and 2.0 to 2.7) while the 'centering' tag will be
-    applied to a single range.
-    '''
-    for tag in tag_list:
-        tag_name = tag[0]
-        tag_ranges = tag[1:]
-        for (start_index, end_index) in zip(tag_ranges[::2],tag_ranges[1::2]):
-            text_box.tag_add(tag_name, start_index, end_index)
+    def apply_text_tags(self, tag_list: List[Tuple[str,...]]):
+        '''
+        Apply a list of tags to this text box.
 
-def update_text_box(text_box: tk.Text, new_text: str):
-    saved_tags = extract_text_tags(text_box)
-    text_box['state'] = 'normal'
-    text_box.delete('1.0','end')
-    text_box.insert('1.0',new_text)
-    apply_text_tags(text_box, saved_tags)
-    text_box['state'] = 'disabled'
+        The tags in the list are all applied to the text box for the 
+        specified ranges. The tags must be configured elsewhere to
+        produce a formatting effect.
+
+        Example tag_list input:
+
+        [('bold', '1.0', '1.5', '2.0', 2.7'),
+        ('centering', '1.0', '3.0')]
+        
+        In the example, the 'bold' tag will be applied to two text ranges,
+        (1.0 to 1.5 and 2.0 to 2.7) while the 'centering' tag will be
+        applied to a single range.
+        '''
+        for tag in tag_list:
+            tag_name = tag[0]
+            tag_ranges = tag[1:]
+            for (start_index, end_index) in zip(tag_ranges[::2],tag_ranges[1::2]):
+                self.tag_add(tag_name, start_index, end_index)
+
+    def update_text_box(self, new_text: str):
+        saved_tags = self.extract_text_tags()
+        self['state'] = 'normal'
+        self.delete('1.0','end')
+        self.insert('1.0',new_text)
+        self.apply_text_tags(saved_tags)
+        self['state'] = 'disabled'
+
 
 def make_ordinal(n):
     '''
