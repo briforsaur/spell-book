@@ -137,7 +137,7 @@ class ExtendedTextBox(tk.Text):
 
     apply_text_tags(tag_list)
 
-    update_text_box(new_text)
+    update_text_box(new_text, keep_tags)
     '''
 
     def __init__(self, parent, **keywords):
@@ -192,6 +192,14 @@ class ExtendedTextBox(tk.Text):
                 self.tag_add(tag_name, start_index, end_index)
 
     def update_text_box(self, new_text: str, keep_tags = False):
+        '''
+        Update a text box with entirely new text.
+
+        The content of the text box is replaced with the string new_text.
+
+        The option keep_tags is useful for text boxes that should keep
+        their formatting, such as centering, after updating.
+        '''
         if keep_tags:
             saved_tags = self.extract_text_tags()
         self['state'] = 'normal'
