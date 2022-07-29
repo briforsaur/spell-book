@@ -14,9 +14,29 @@ class ExtendedTextBox(tk.Text):
     apply_text_tags(tag_list)
 
     update_text_box(new_text, keep_tags)
+
+    ExtendedTextBox also configures some tags to format text more easily:
+
+    'bold'
+
+    'italic'
+
+    'bolditalic'
+
+    Each of the tags uses the default text box font.
     '''
 
     def __init__(self, parent, **keywords):
+        '''
+        Constructs new textboxes and configures tags
+
+        See the superclass constructor for detailed documentation.
+
+        The custom fonts and tags are defined on instantiation for
+        each text box object independently. This allows you to change
+        the font for each text box by manually editing the defined
+        fonts and reconfiguring the tags.
+        '''
         tk.Text.__init__(self, parent, **keywords)
         self.parent = parent
         # Creating custom fonts
