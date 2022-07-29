@@ -63,9 +63,19 @@ class SpellListPane(ttk.Frame):
         self.lstbx_spell_names = tk.Listbox(self, listvariable=spell_namesvar)
         self.scrlbr_spell_names = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.lstbx_spell_names.yview)
         self.lstbx_spell_names['yscrollcommand'] = self.scrlbr_spell_names.set # Connects the listbox back to the scrollbar to determine the visual motion of the bar
+        self.btn_new_spell = ttk.Button(self, text='New Spell...', command=self.new_spell_callback)
+        self.btn_edit_spell = ttk.Button(self, text='Edit Spell...', command=self.edit_spell_callback)
         # Placing the widgets on the grid
-        self.lstbx_spell_names.grid(column=0, row=0, sticky="nsew")
-        self.scrlbr_spell_names.grid(column=1, row=0, sticky="ns")
+        self.lstbx_spell_names.grid(column=0, row=0, columnspan=3, sticky="nsew")
+        self.scrlbr_spell_names.grid(column=3, row=0, sticky="ns")
+        self.btn_new_spell.grid(column=0, row=1)
+        self.btn_edit_spell.grid(column=1, row=1)
+
+    def new_spell_callback(self):
+        pass
+
+    def edit_spell_callback(self):
+        pass
 
 
 class SpellInfoPane(ttk.Frame):
