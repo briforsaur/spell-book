@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from typing import Dict, List, Tuple
+from tkinter import font as tkFont
 
 spell_names = ["Poof", "Zap", "Alakazam", "Abracadabra", "Disintegrate", "Wish", "Fireball", "Speak with Animals", "Bless", "Augury", "Arms of Hadar", "Shillelagh", "Leomund's Tiny Hut", "Cure Wounds", "Mass Cure Wounds"]
 spell_names = sorted(spell_names)
@@ -16,6 +17,7 @@ spell_data = {  'name': 'Bless',
                 'components': 'VSM',
                 'component-text': 'A sprinkling of holy water',
                 'description': "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw.",
+                'description-tags': [('bold', '1.0', '1.5', '1.16', '1.24'), ('italic', '1.7', '1.14'), ('bolditalic', '3.0', '3.17')],
                 'higher-levels': "When you cast a this spell using a spell slot of 2nd level or higher, you can target one additional creature for each slot level above 1st."}
 
 class MainApplication(ttk.Frame):
@@ -124,6 +126,7 @@ class SpellInfoPane(ttk.Frame):
         self.txt_description.update_text_box(spell_info['description'])
         self.txt_description['state'] = 'normal'
         self.txt_description.insert('end', '\n\nAt Higher Levels. ' + spell_info['higher-levels'])
+        self.txt_description.apply_text_tags(spell_info['description-tags'])
         self.txt_description['state'] = 'disabled'
 
 
@@ -143,6 +146,18 @@ class ExtendedTextBox(tk.Text):
     def __init__(self, parent, **keywords):
         tk.Text.__init__(self, parent, **keywords)
         self.parent = parent
+        # Creating custom fonts
+        default_font = tkFont.nametofont(self.cget("font"))
+        bold_font = tkFont.Font(**default_font.configure())
+        italic_font = tkFont.Font(**default_font.configure())
+        bolditalic_font = tkFont.Font(**default_font.configure())
+        bold_font.configure(weight="bold")
+        italic_font.configure(slant="italic")
+        bolditalic_font.configure(weight="bold", slant="italic")
+        # Configuring custom text style tags
+        self.tag_configure('bold',font=bold_font)
+        self.tag_configure('italic',font=italic_font)
+        self.tag_configure('bolditalic',font=bolditalic_font)
     
     def extract_text_tags(self) -> List[Tuple[str,...]]:
         '''
