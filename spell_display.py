@@ -148,6 +148,7 @@ class SpellInfoPane(ttk.Frame):
 class NewSpellWindow(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
+        self.parent = parent
         self.title('New Spell...')
         self.add_widgets()
         self.protocol('WM_DELETE_WINDOW', self.dismiss) # Intercepting the close button
@@ -156,7 +157,7 @@ class NewSpellWindow(tk.Toplevel):
         self.grab_set()
 
     def add_widgets(self):
-        self.btn_confirm = ttk.Button(self, text='OK', command=self.dismiss)
+        self.btn_confirm = ttk.Button(self, text='OK', command=self.confirm_close)
         self.btn_cancel = ttk.Button(self, text='Cancel', command=self.dismiss)
         # Placing the widgets on the grid
         self.btn_confirm.grid(column=0, row=1)
@@ -166,6 +167,10 @@ class NewSpellWindow(tk.Toplevel):
         # Returning interactivity to the other windows
         self.grab_release()
         self.destroy()
+
+    def confirm_close(self):
+        self.parent.update_spell_info()
+        self.dismiss()
 
 
 def make_ordinal(n):
