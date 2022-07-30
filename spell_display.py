@@ -72,7 +72,8 @@ class SpellListPane(ttk.Frame):
         self.btn_edit_spell.grid(column=1, row=1)
 
     def new_spell_callback(self):
-        pass
+        win_new_spell = tk.Toplevel(self)
+        win_new_spell.title('New Spell...')
 
     def edit_spell_callback(self):
         pass
