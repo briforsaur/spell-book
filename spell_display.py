@@ -7,6 +7,11 @@ from my_tk_extensions import ExtendedTextBox
 
 spell_names = ["Poof", "Zap", "Alakazam", "Abracadabra", "Disintegrate", "Wish", "Fireball", "Speak with Animals", "Bless", "Augury", "Arms of Hadar", "Shillelagh", "Leomund's Tiny Hut", "Cure Wounds", "Mass Cure Wounds"]
 spell_names = sorted(spell_names)
+spell_levels = ('Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th')
+spell_schools = ('Abjuration', 'Conjuration', 'Divination', 'Enchantment', 'Evocation', 'Illusion', 'Necromancy', 'Transmutation')
+spell_cast_time_units = ('reaction', 'bonus action', 'action', 'minutes', 'hours')
+spell_cast_time_values = (0.01, 0.05, 0.1, 1, 60)
+spell_range_units = ('Self', 'Touch', 'feet')
 
 spell_data = {  'name': 'Bless',
                 'ritual': False,
@@ -79,7 +84,6 @@ class SpellListPane(ttk.Frame):
 
     def update_spell_entry(self, spell_info: Dict):
         print(spell_info['name'])
-        print('Updated!')
 
 
 class SpellInfoPane(ttk.Frame):
@@ -152,6 +156,8 @@ class NewSpellWindow(tk.Toplevel):
         self.parent = parent
         self.title('New Spell...')
         self.add_widgets()
+        self.columnconfigure(2, weight=1)
+        self.rowconfigure(0, weight=1)
         self.protocol('WM_DELETE_WINDOW', self.dismiss) # Intercepting the close button
         # Making this the only interactable window
         self.wait_visibility()
@@ -162,7 +168,7 @@ class NewSpellWindow(tk.Toplevel):
         self.btn_confirm = ttk.Button(self, text='OK', command=self.confirm_close)
         self.btn_cancel = ttk.Button(self, text='Cancel', command=self.dismiss)
         # Placing the widgets on the grid
-        self.frm_spell_info.grid(column=0, row=0, columnspan=2)
+        self.frm_spell_info.grid(column=0, row=0, columnspan=3, sticky='nsew')
         self.btn_confirm.grid(column=0, row=1)
         self.btn_cancel.grid(column=1, row=1)
 
@@ -178,16 +184,78 @@ class NewSpellWindow(tk.Toplevel):
 
 class NewSpellPane(ttk.Frame):
     def __init__(self, parent):
-        super().__init__(parent, relief=tk.GROOVE, borderwidth=3, style='SpellInfo.TFrame')
+        super().__init__(parent, relief=tk.GROOVE, borderwidth=3)
         self.parent = parent
         self.add_widgets()
+        self.rowconfigure(list(range(0,12)), pad=5)
+        self.rowconfigure(7, weight=1) # Allows the components text to stretch vertically
+        self.rowconfigure(10, weight=3) # Allows the description text to stretch vertically
+        self.rowconfigure(12, weight=2) # Allows the higher levels text to stretch vertically
+        self.columnconfigure(5, weight=1)
 
     def add_widgets(self):
         self.lbl_name = ttk.Label(self, text="Spell Name")
         self.ent_name = ttk.Entry(self)
+        self.lbl_level = ttk.Label(self, text="Level")
+        self.cmb_level = ttk.Combobox(self)
+        self.cmb_level['values'] = spell_levels
+        self.lbl_school = ttk.Label(self, text="School")
+        self.cmb_school = ttk.Combobox(self)
+        self.cmb_school['values'] = spell_schools
+        self.lbl_ritual = ttk.Label(self, text="Ritual")
+        self.chk_ritual_value = tk.IntVar(value=0)
+        self.chk_ritual = ttk.Checkbutton(self, variable=self.chk_ritual_value, onvalue=1, offvalue=0)
+        self.lbl_cast_time = ttk.Label(self, text="Casting Time")
+        self.spn_cast_time = ttk.Spinbox(self, from_=1, to=60, increment=1)
+        self.cmb_cast_unit = ttk.Combobox(self)
+        self.cmb_cast_unit['values'] = spell_cast_time_units
+        self.lbl_range = ttk.Label(self, text="Range")
+        self.spn_range = ttk.Spinbox(self, from_=5, to=1000, increment=5)
+        self.cmb_range_unit = ttk.Combobox(self)
+        self.cmb_range_unit['values'] = spell_range_units
+        self.lbl_components = ttk.Label(self, text="Components")
+        self.chk_components_V_value = tk.IntVar(value=1)
+        self.chk_components_V = ttk.Checkbutton(self, text='V', variable=self.chk_components_V_value, onvalue=1, offvalue=0)
+        self.chk_components_S_value = tk.IntVar(value=1)
+        self.chk_components_S = ttk.Checkbutton(self, text='S', variable=self.chk_components_S_value, onvalue=1, offvalue=0)
+        self.chk_components_M_value = tk.IntVar(value=1)
+        self.chk_components_M = ttk.Checkbutton(self, text='M', variable=self.chk_components_M_value, onvalue=1, offvalue=0)
+        self.txt_components = tk.Text(self, width=50, height=2, borderwidth=1, font='TkTextFont', wrap="word")
+        self.lbl_duration = ttk.Label(self, text="Duration")
+        self.ent_duration = ttk.Entry(self)
+        self.lbl_description = ttk.Label(self, text='Description')
+        self.txt_description = tk.Text(self, width=50, height=2, borderwidth=1, font='TkTextFont', wrap="word")
+        self.lbl_higher_levels = ttk.Label(self, text='At Higher Levels')
+        self.txt_higher_levels = tk.Text(self, width=50, height=2, borderwidth=1, font='TkTextFont', wrap="word")
 
-        self.lbl_name.grid(row=0, column=0)
-        self.ent_name.grid(row=0, column=1)
+        # Placing widgets on the grid
+        self.lbl_name.grid(row=0, column=0, sticky='e')
+        self.ent_name.grid(row=0, column=1, columnspan=4, sticky='ew')
+        self.lbl_level.grid(row=1, column=0, sticky='e')
+        self.cmb_level.grid(row=1, column=1, columnspan=3)
+        self.lbl_school.grid(row=2, column=0, sticky='e')
+        self.cmb_school.grid(row=2, column=1, columnspan=3)
+        self.lbl_ritual.grid(row=3, column=0, sticky='e')
+        self.chk_ritual.grid(row=3, column=1)
+        self.lbl_cast_time.grid(row=4, column=0, sticky='e')
+        self.spn_cast_time.grid(row=4, column=1, columnspan=3)
+        self.cmb_cast_unit.grid(row=4, column=4)
+        self.lbl_range.grid(row=5, column=0, sticky='e')
+        self.spn_range.grid(row=5, column=1, columnspan=3)
+        self.cmb_range_unit.grid(row=5, column=4)
+        self.lbl_components.grid(row=6, column=0, sticky='e')
+        self.chk_components_V.grid(row=6, column=1)
+        self.chk_components_S.grid(row=6, column=2)
+        self.chk_components_M.grid(row=6, column=3)
+        self.txt_components.grid(row=7, column=1, columnspan=5, sticky='nsew', padx=5)
+        self.lbl_duration.grid(row=8, column=0, sticky='e')
+        self.ent_duration.grid(row=8, column=1, columnspan=3)
+        self.lbl_description.grid(row=9, column=0, sticky='w')
+        self.txt_description.grid(row=10, column=0, columnspan=6, sticky='nsew', padx=5)
+        self.lbl_higher_levels.grid(row=11, column=0, sticky='w')
+        self.txt_higher_levels.grid(row=12, column=0, columnspan=6, sticky='nsew', padx=5)
+
+        
 
     def get_spell_data(self):
         spell_data = {}
