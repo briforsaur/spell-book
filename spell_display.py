@@ -1,7 +1,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from typing import Dict, List, Tuple
-from tkinter import font as tkFont
+from tkinter import StringVar, font as tkFont
 
 from my_tk_extensions import ExtendedTextBox
 
@@ -77,7 +77,8 @@ class SpellListPane(ttk.Frame):
     def edit_spell_callback(self):
         pass
 
-    def update_spell_info(self):
+    def update_spell_entry(self, spell_info: Dict):
+        print(spell_info['name'])
         print('Updated!')
 
 
@@ -157,9 +158,11 @@ class NewSpellWindow(tk.Toplevel):
         self.grab_set()
 
     def add_widgets(self):
+        self.frm_spell_info = NewSpellPane(self)
         self.btn_confirm = ttk.Button(self, text='OK', command=self.confirm_close)
         self.btn_cancel = ttk.Button(self, text='Cancel', command=self.dismiss)
         # Placing the widgets on the grid
+        self.frm_spell_info.grid(column=0, row=0, columnspan=2)
         self.btn_confirm.grid(column=0, row=1)
         self.btn_cancel.grid(column=1, row=1)
 
@@ -169,8 +172,28 @@ class NewSpellWindow(tk.Toplevel):
         self.destroy()
 
     def confirm_close(self):
-        self.parent.update_spell_info()
+        self.parent.update_spell_entry(self.frm_spell_info.get_spell_data())
         self.dismiss()
+
+
+class NewSpellPane(ttk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent, relief=tk.GROOVE, borderwidth=3, style='SpellInfo.TFrame')
+        self.parent = parent
+        self.add_widgets()
+
+    def add_widgets(self):
+        self.lbl_name = ttk.Label(self, text="Spell Name")
+        self.ent_name = ttk.Entry(self)
+
+        self.lbl_name.grid(row=0, column=0)
+        self.ent_name.grid(row=0, column=1)
+
+    def get_spell_data(self):
+        spell_data = {}
+        spell_data['name'] = self.ent_name.get()
+
+        return spell_data
 
 
 def make_ordinal(n):
