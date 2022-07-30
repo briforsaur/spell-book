@@ -83,7 +83,7 @@ class SpellListPane(ttk.Frame):
         pass
 
     def update_spell_entry(self, spell_info: Dict):
-        print(spell_info['name'])
+        print(spell_info)
 
 
 class SpellInfoPane(ttk.Frame):
@@ -227,7 +227,6 @@ class NewSpellPane(ttk.Frame):
         self.txt_description = tk.Text(self, width=50, height=2, borderwidth=1, font='TkTextFont', wrap="word")
         self.lbl_higher_levels = ttk.Label(self, text='At Higher Levels')
         self.txt_higher_levels = tk.Text(self, width=50, height=2, borderwidth=1, font='TkTextFont', wrap="word")
-
         # Placing widgets on the grid
         self.lbl_name.grid(row=0, column=0, sticky='e')
         self.ent_name.grid(row=0, column=1, columnspan=4, sticky='ew')
@@ -255,12 +254,12 @@ class NewSpellPane(ttk.Frame):
         self.lbl_higher_levels.grid(row=11, column=0, sticky='w')
         self.txt_higher_levels.grid(row=12, column=0, columnspan=6, sticky='nsew', padx=5)
 
-        
-
     def get_spell_data(self):
         spell_data = {}
         spell_data['name'] = self.ent_name.get()
-
+        spell_data['level'] = spell_levels.index(self.cmb_level.get())
+        spell_data['ritual'] = self.chk_ritual_value.get()
+        spell_data['description'] = self.txt_description.get('1.0', 'end')
         return spell_data
 
 
