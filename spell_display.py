@@ -72,8 +72,7 @@ class SpellListPane(ttk.Frame):
         self.btn_edit_spell.grid(column=1, row=1)
 
     def new_spell_callback(self):
-        win_new_spell = tk.Toplevel(self)
-        win_new_spell.title('New Spell...')
+        win_new_spell = NewSpellWindow(self)
 
     def edit_spell_callback(self):
         pass
@@ -143,7 +142,10 @@ class SpellInfoPane(ttk.Frame):
         self.txt_description['state'] = 'disabled'
 
 
-
+class NewSpellWindow(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title('New Spell...')
 
 
 def make_ordinal(n):
