@@ -77,6 +77,9 @@ class SpellListPane(ttk.Frame):
     def edit_spell_callback(self):
         pass
 
+    def update_spell_info(self):
+        print('Updated!')
+
 
 class SpellInfoPane(ttk.Frame):
     def __init__(self, parent):
@@ -146,6 +149,15 @@ class NewSpellWindow(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title('New Spell...')
+        self.protocol('WM_DELETE_WINDOW', self.dismiss) # Intercepting the close button
+        # Making this the only interactable window
+        self.wait_visibility()
+        self.grab_set()
+
+    def dismiss(self):
+        # Returning interactivity to the other windows
+        self.grab_release()
+        self.destroy()
 
 
 def make_ordinal(n):
