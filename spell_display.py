@@ -149,10 +149,18 @@ class NewSpellWindow(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title('New Spell...')
+        self.add_widgets()
         self.protocol('WM_DELETE_WINDOW', self.dismiss) # Intercepting the close button
         # Making this the only interactable window
         self.wait_visibility()
         self.grab_set()
+
+    def add_widgets(self):
+        self.btn_confirm = ttk.Button(self, text='OK', command=self.dismiss)
+        self.btn_cancel = ttk.Button(self, text='Cancel', command=self.dismiss)
+        # Placing the widgets on the grid
+        self.btn_confirm.grid(column=0, row=1)
+        self.btn_cancel.grid(column=1, row=1)
 
     def dismiss(self):
         # Returning interactivity to the other windows
