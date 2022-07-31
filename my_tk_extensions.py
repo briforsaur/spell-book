@@ -116,3 +116,47 @@ class ExtendedTextBox(tk.Text):
         if keep_tags:
             self.apply_text_tags(saved_tags)
         self['state'] = 'disabled'
+
+
+class TextEditor(ttk.Frame):
+    def __init__(self, parent, **keywords):
+        super().__init__(parent, **keywords)
+        self.add_widgets()
+        self.columnconfigure(4, weight=1)
+        self.rowconfigure(1, weight=1)
+        self.bold_text = False
+        self.italic_text = False
+
+    def add_widgets(self):
+        self.btn_boldtext = ttk.Button(self, text='Bold', command= lambda: self.format_button_callback('bold'))
+        self.btn_italictext = ttk.Button(self, text='Italic', command= lambda: self.format_button_callback('italic'))
+        self.btn_bolditalictext = ttk.Button(self, text='Bold + Italic', command= lambda: self.format_button_callback('bolditalic'))
+        self.btn_addbullet = ttk.Button(self, text='•', command=self.insert_bullet)
+        self.txt_editor = ExtendedTextBox(self, width=100, height=10, borderwidth=1, font='TkTextFont', wrap="word")
+        # Placing widgets on a grid
+        self.btn_boldtext.grid(row=0, column=0, padx=5)
+        self.btn_italictext.grid(row=0, column=1)
+        self.btn_bolditalictext.grid(row=0, column=2)
+        self.btn_addbullet.grid(row=0, column=3, padx=5)
+        self.txt_editor.grid(row=1, column=0, columnspan=5, padx=5, pady=5, sticky='nsew')
+
+    def get(self):
+        return self.txt_editor.get('1.0', 'end')
+
+    def format_button_callback(self, tag_name: str):
+        selection_range = self.txt_editor.tag_ranges('sel')
+        if selection_range:
+            tags = self.txt_editor.tag_names(selection_range[0])
+            if tag_name in tags:
+                self.txt_editor.tag_remove(tag_name, *selection_range)
+            else:
+                self.txt_editor.tag_add(tag_name, *selection_range)
+
+    def insert_bullet(self):
+        self.txt_editor.insert('insert', ' • ')
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.title('Tk Extensions')
+    TextEditor(root).pack(side="top", fill="both", expand=True)
+    root.mainloop()
