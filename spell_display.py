@@ -3,7 +3,7 @@ import tkinter.ttk as ttk
 from typing import Dict, List, Tuple
 from tkinter import StringVar, font as tkFont
 
-from my_tk_extensions import ExtendedTextBox
+from my_tk_extensions import ExtendedTextBox, TextEditor
 
 spell_names = ["Poof", "Zap", "Alakazam", "Abracadabra", "Disintegrate", "Wish", "Fireball", "Speak with Animals", "Bless", "Augury", "Arms of Hadar", "Shillelagh", "Leomund's Tiny Hut", "Cure Wounds", "Mass Cure Wounds"]
 spell_names = sorted(spell_names)
@@ -224,9 +224,9 @@ class NewSpellPane(ttk.Frame):
         self.lbl_duration = ttk.Label(self, text="Duration")
         self.ent_duration = ttk.Entry(self)
         self.lbl_description = ttk.Label(self, text='Description')
-        self.txt_description = tk.Text(self, width=50, height=2, borderwidth=1, font='TkTextFont', wrap="word")
+        self.txt_description = TextEditor(self)
         self.lbl_higher_levels = ttk.Label(self, text='At Higher Levels')
-        self.txt_higher_levels = tk.Text(self, width=50, height=2, borderwidth=1, font='TkTextFont', wrap="word")
+        self.txt_higher_levels = TextEditor(self)
         # Placing widgets on the grid
         self.lbl_name.grid(row=0, column=0, sticky='e')
         self.ent_name.grid(row=0, column=1, columnspan=4, sticky='ew')
