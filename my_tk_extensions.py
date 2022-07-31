@@ -134,10 +134,10 @@ class TextEditor(ttk.Frame):
         self.btn_addbullet = ttk.Button(self, text='•', command=self.insert_bullet)
         self.txt_editor = ExtendedTextBox(self, width=100, height=10, borderwidth=1, font='TkTextFont', wrap="word")
         # Placing widgets on a grid
-        self.btn_boldtext.grid(row=0, column=0, padx=5)
-        self.btn_italictext.grid(row=0, column=1)
-        self.btn_bolditalictext.grid(row=0, column=2)
-        self.btn_addbullet.grid(row=0, column=3, padx=5)
+        self.btn_boldtext.grid(row=0, column=0, padx=[5, 2.5])
+        self.btn_italictext.grid(row=0, column=1, padx=2.5)
+        self.btn_bolditalictext.grid(row=0, column=2, padx=2.5)
+        self.btn_addbullet.grid(row=0, column=3, padx=2.5)
         self.txt_editor.grid(row=1, column=0, columnspan=5, padx=5, pady=5, sticky='nsew')
 
     def get(self):
