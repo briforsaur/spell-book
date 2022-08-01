@@ -151,9 +151,11 @@ class TextEditor(ttk.Frame):
                 self.txt_editor.tag_remove(tag_name, *selection_range)
             else:
                 self.txt_editor.tag_add(tag_name, *selection_range)
+        self.txt_editor.focus_set() # returns focus to the text widgets
 
     def insert_bullet(self):
         self.txt_editor.insert('insert', ' • ')
+        self.txt_editor.focus_set() # returns focus to the text widgets
 
 if __name__ == "__main__":
     root = tk.Tk()
