@@ -4,28 +4,28 @@ from typing import Dict, List, Tuple
 from tkinter import StringVar, font as tkFont
 
 from my_tk_extensions import ExtendedTextBox, TextEditor
+from spell_info import SpellInfo
 
 spell_names = ["Poof", "Zap", "Alakazam", "Abracadabra", "Disintegrate", "Wish", "Fireball", "Speak with Animals", "Bless", "Augury", "Arms of Hadar", "Shillelagh", "Leomund's Tiny Hut", "Cure Wounds", "Mass Cure Wounds"]
 spell_names = sorted(spell_names)
-spell_levels = ('Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th')
-spell_schools = ('Abjuration', 'Conjuration', 'Divination', 'Enchantment', 'Evocation', 'Illusion', 'Necromancy', 'Transmutation')
-spell_cast_time_units = ('reaction', 'bonus action', 'action', 'minutes', 'hours')
-spell_cast_time_values = (0.01, 0.05, 0.1, 1, 60)
-spell_range_units = ('Self', 'Touch', 'feet')
 
-spell_data = {  'name': 'Bless',
-                'ritual': False,
-                'level': 1,
-                'school': 'Enchantment',
-                'cast-time': '1 action',
-                'duration': '1 minute',
-                'range': '30 feet',
-                'concentration': True,
-                'components': 'VSM',
-                'component-text': 'A sprinkling of holy water',
-                'description': "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw.",
-                'description-tags': [('bold', '1.0', '1.5', '1.16', '1.24'), ('italic', '1.7', '1.14'), ('bolditalic', '3.0', '3.17')],
-                'higher-levels': "When you cast a this spell using a spell slot of 2nd level or higher, you can target one additional creature for each slot level above 1st."}
+spell_data = SpellInfo( name= 'Bless',
+                        ritual= 0,
+                        level= 1,
+                        school= 'Enchantment',
+                        cast_time= SpellInfo.value_from_cast_time(1, 'action'),
+                        duration= '1 minute',
+                        range= '30 feet',
+                        concentration= 1,
+                        v_component= 1,
+                        s_component= 1,
+                        m_component= 1,
+                        components= 'A sprinkling of holy water',
+                        components_tags= [],
+                        description= "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw.",
+                        description_tags= [('bold', '1.0', '1.5', '1.16', '1.24'), ('italic', '1.7', '1.14'), ('bolditalic', '3.0', '3.17')],
+                        higher_levels= "When you cast a this spell using a spell slot of 2nd level or higher, you can target one additional creature for each slot level above 1st.",
+                        higher_levels_tags= [])
 
 class MainApplication(ttk.Frame):
     def __init__(self, parent):
@@ -130,23 +130,23 @@ class SpellInfoPane(ttk.Frame):
         self.txt_components.grid(row=6, column=0, columnspan=2, padx=5, pady=2, sticky="nesw")
         self.txt_description.grid(row=7, column=0, columnspan=2, padx=5, pady=10, sticky="nesw")
 
-    def update_spell_info(self, spell_info: Dict):
+    def update_spell_info(self, spell_info: SpellInfo):
         # Updating the labels
-        self.lbl_name['text'] = spell_info['name']
-        self.lbl_ritual['text'] = 'Ritual' if spell_info['ritual'] else ''
-        self.lbl_level['text'] = f"{make_ordinal(spell_info['level'])}-level"
-        self.lbl_school['text'] = spell_info['school']
-        self.lbl_cast_time['text'] = spell_info['cast-time']
-        self.lbl_range['text'] = spell_info['range']
-        self.lbl_duration['text'] = spell_info['duration']
-        self.lbl_concentration['text'] = 'Concentration' if spell_info['concentration'] else ''
-        self.lbl_components['text'] = spell_info['components']
+        self.lbl_name['text'] = spell_info.name
+        self.lbl_ritual['text'] = 'Ritual' if spell_info.ritual else ''
+        self.lbl_level['text'] = spell_info.get_level_as_string()
+        self.lbl_school['text'] = spell_info.school
+        self.lbl_cast_time['text'] = spell_info.get_cast_time_as_str()
+        self.lbl_range['text'] = spell_info.range
+        self.lbl_duration['text'] = spell_info.duration
+        self.lbl_concentration['text'] = 'Concentration' if spell_info.concentration else ''
+        self.lbl_components['text'] = spell_info.get_vsm_components_as_string()
         # Updating the text boxes
-        self.txt_components.update_text_box(spell_info['component-text'], keep_tags=True)
-        self.txt_description.update_text_box(spell_info['description'])
+        self.txt_components.update_text_box(spell_info.components, keep_tags=True)
+        self.txt_description.update_text_box(spell_info.description)
         self.txt_description['state'] = 'normal'
-        self.txt_description.insert('end', '\n\nAt Higher Levels. ' + spell_info['higher-levels'])
-        self.txt_description.apply_text_tags(spell_info['description-tags'])
+        self.txt_description.insert('end', '\n\nAt Higher Levels. ' + spell_info.higher_levels)
+        self.txt_description.apply_text_tags(spell_info.description_tags)
         self.txt_description['state'] = 'disabled'
 
 
@@ -198,21 +198,21 @@ class NewSpellPane(ttk.Frame):
         self.ent_name = ttk.Entry(self)
         self.lbl_level = ttk.Label(self, text="Level")
         self.cmb_level = ttk.Combobox(self)
-        self.cmb_level['values'] = spell_levels
+        self.cmb_level['values'] = SpellInfo.levels
         self.lbl_school = ttk.Label(self, text="School")
         self.cmb_school = ttk.Combobox(self)
-        self.cmb_school['values'] = spell_schools
+        self.cmb_school['values'] = SpellInfo.schools
         self.lbl_ritual = ttk.Label(self, text="Ritual")
         self.chk_ritual_value = tk.IntVar(value=0)
         self.chk_ritual = ttk.Checkbutton(self, variable=self.chk_ritual_value, onvalue=1, offvalue=0)
         self.lbl_cast_time = ttk.Label(self, text="Casting Time")
         self.spn_cast_time = ttk.Spinbox(self, from_=1, to=60, increment=1)
         self.cmb_cast_unit = ttk.Combobox(self)
-        self.cmb_cast_unit['values'] = spell_cast_time_units
+        self.cmb_cast_unit['values'] = SpellInfo.cast_time_units
         self.lbl_range = ttk.Label(self, text="Range")
         self.spn_range = ttk.Spinbox(self, from_=5, to=1000, increment=5)
         self.cmb_range_unit = ttk.Combobox(self)
-        self.cmb_range_unit['values'] = spell_range_units
+        self.cmb_range_unit['values'] = SpellInfo.range_units
         self.lbl_components = ttk.Label(self, text="Components")
         self.chk_components_V_value = tk.IntVar(value=1)
         self.chk_components_V = ttk.Checkbutton(self, text='V', variable=self.chk_components_V_value, onvalue=1, offvalue=0)
@@ -256,31 +256,8 @@ class NewSpellPane(ttk.Frame):
 
     def get_spell_data(self):
         spell_data = {}
-        spell_data['name'] = self.ent_name.get()
-        spell_data['level'] = spell_levels.index(self.cmb_level.get())
-        spell_data['ritual'] = self.chk_ritual_value.get()
-        spell_data['description'] = self.txt_description.get('1.0', 'end')
         return spell_data
 
-
-def make_ordinal(n):
-    '''
-    Convert an integer into its ordinal representation::
-
-        make_ordinal(0)   => '0th'
-        make_ordinal(3)   => '3rd'
-        make_ordinal(122) => '122nd'
-        make_ordinal(213) => '213th'
-
-    by Florian Brucker (https://stackoverflow.com/a/50992575)
-    can be reused under the CC BY-SA 4.0 license (https://creativecommons.org/licenses/by-sa/4.0/)
-    '''
-    n = int(n)
-    if 11 <= (n % 100) <= 13:
-        suffix = 'th'
-    else:
-        suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
-    return str(n) + suffix
 
 if __name__ == "__main__":
     root = tk.Tk()

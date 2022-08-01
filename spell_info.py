@@ -13,6 +13,7 @@ class SpellInfo:
     m_component: bool
     components: str
     components_tags: list
+    concentration: bool
     duration: str
     description: str
     description_tags: list
@@ -58,42 +59,58 @@ class SpellInfo:
             time_value = time_quantity*time_value
         return time_value
 
-    def cast_time_from_value(time_value: float) -> str:
+    def get_cast_time_as_str(self) -> str:
         '''
         Converts a numerical value to a human-readable casting time.
 
         This function performs the inverse operation of the function
         value_from_cast_time. See that function for details.
         '''
-        cast_time = 'None'
+        time_value = self.cast_time
+        cast_time_str = 'None'
         if time_value < SpellInfo.cast_time_values[1]:
             # Reaction
-            cast_time = '1 ' + SpellInfo.cast_time_units[0]
+            cast_time_str = '1 ' + SpellInfo.cast_time_units[0]
         elif time_value < SpellInfo.cast_time_values[2]:
             # Bonus action
-            cast_time = '1 ' + SpellInfo.cast_time_units[1]
+            cast_time_str = '1 ' + SpellInfo.cast_time_units[1]
         elif time_value < SpellInfo.cast_time_values[3]:
             # Action
-            cast_time = '1 ' + SpellInfo.cast_time_units[2]
+            cast_time_str = '1 ' + SpellInfo.cast_time_units[2]
         elif time_value < SpellInfo.cast_time_values[4]:
             # Minute
-            cast_time = f'{int(time_value)} ' + SpellInfo.cast_time_units[3][:-1]
+            cast_time_str = f'{int(time_value)} ' + SpellInfo.cast_time_units[3][:-1]
             if time_value > SpellInfo.cast_time_values[3]:
                 # Plural minutes
-                cast_time = cast_time + 's'
+                cast_time_str = cast_time_str + 's'
         else:
             # Hour
-            cast_time = f'{int(time_value/60)} ' + SpellInfo.cast_time_units[4][:-1]
+            cast_time_str = f'{int(time_value/60)} ' + SpellInfo.cast_time_units[4][:-1]
             if time_value > SpellInfo.cast_time_values[4]:
                 # Plural hours
-                cast_time = cast_time + 's'
-        return cast_time
+                cast_time_str = cast_time_str + 's'
+        return cast_time_str
+
+    def level_string_to_number(level_str: str) -> int:
+        return SpellInfo.levels.index(level_str)
+
+    def get_level_as_string(self) -> str:
+        level_str = SpellInfo.levels[self.level]
+        if self.level > 0:
+            level_str = level_str + '-level'
+        return level_str
+
+    def get_vsm_components_as_string(self):
+        vsm_str = ''
+        if self.v_component:
+            vsm_str = vsm_str + 'V'
+        if self.s_component:
+            vsm_str = vsm_str + 'S'
+        if self.m_component:
+            vsm_str = vsm_str + 'M'
 
 
 if __name__ == '__main__':
-    time_value = SpellInfo.value_from_cast_time(2, 'hours')
-    print(time_value)
-    print(SpellInfo.cast_time_from_value(time_value))
     spell_info = SpellInfo( name= 'Armor of Agathys',
                             level= 1,
                             school= 'Abjuration',
@@ -105,9 +122,12 @@ if __name__ == '__main__':
                             m_component= 1,
                             components= 'a cup of water',
                             components_tags= [],
+                            concentration= 0,
                             duration= '1 hour',
                             description= 'A protective magical force surrounds you, manifesting as a spectral frost that covers you and your gear. You gain 5 temporary hit points for the duration. If a creature hits you with a melee attack while you have these hit points, the creature takes 5 cold damage.',
                             description_tags= [],
                             higher_levels= 'When you cast this spell using a spell slot of 2nd level or higher, both the temporary hit points and the cold damage increase by 5 for every level above 1st.',
                             higher_levels_tags= [])
     print(spell_info)
+    print(spell_info.get_level_as_string())
+    print(spell_info.get_cast_time_as_str())
