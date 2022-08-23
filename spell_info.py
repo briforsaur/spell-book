@@ -19,12 +19,14 @@ class SpellInfo:
     description_tags: list
     higher_levels: str
     higher_levels_tags: list
+    in_class_spell_list: tuple[bool, bool, bool, bool, bool, bool, bool, bool]
     #
     levels = ('Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th')
     schools = ('Abjuration', 'Conjuration', 'Divination', 'Enchantment', 'Evocation', 'Illusion', 'Necromancy', 'Transmutation')
     cast_time_units = ('reaction', 'bonus action', 'action', 'minutes', 'hours')
     cast_time_values = (0.01, 0.05, 0.1, 1, 60)
     range_units = ('Self', 'Touch', 'feet')
+    classes = ('Bard', 'Cleric', 'Druid', 'Paladin', 'Ranger', 'Sorceror', 'Warlock', 'Wizard')
 
     def value_from_cast_time(time_quantity: int, time_unit: str) -> float:
         '''
@@ -100,7 +102,7 @@ class SpellInfo:
             level_str = level_str + '-level'
         return level_str
 
-    def get_vsm_components_as_string(self):
+    def get_vsm_components_as_string(self) -> str:
         vsm_str = ''
         if self.v_component:
             vsm_str = vsm_str + 'V'
@@ -108,6 +110,11 @@ class SpellInfo:
             vsm_str = vsm_str + 'S'
         if self.m_component:
             vsm_str = vsm_str + 'M'
+        return vsm_str
+
+    def get_classes_as_string(self) -> str:
+        classes = [class_name for class_name, is_in_list in zip(SpellInfo.classes, self.in_class_spell_list) if is_in_list]
+        return ", ".join(classes)
 
 
 if __name__ == '__main__':
@@ -127,7 +134,10 @@ if __name__ == '__main__':
                             description= 'A protective magical force surrounds you, manifesting as a spectral frost that covers you and your gear. You gain 5 temporary hit points for the duration. If a creature hits you with a melee attack while you have these hit points, the creature takes 5 cold damage.',
                             description_tags= [],
                             higher_levels= 'When you cast this spell using a spell slot of 2nd level or higher, both the temporary hit points and the cold damage increase by 5 for every level above 1st.',
-                            higher_levels_tags= [])
+                            higher_levels_tags= [],
+                            in_class_spell_list=(False, False, False, True, False, False, True, False))
     print(spell_info)
     print(spell_info.get_level_as_string())
     print(spell_info.get_cast_time_as_str())
+    print(spell_info.get_vsm_components_as_string())
+    print(spell_info.get_classes_as_string())
