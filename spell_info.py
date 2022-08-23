@@ -105,16 +105,41 @@ class SpellInfo:
     def get_vsm_components_as_string(self) -> str:
         vsm_str = ''
         if self.v_component:
-            vsm_str = vsm_str + 'V'
+            vsm_str += 'V'
         if self.s_component:
-            vsm_str = vsm_str + 'S'
+            vsm_str += 'S'
         if self.m_component:
-            vsm_str = vsm_str + 'M'
+            vsm_str += 'M'
         return vsm_str
 
     def get_classes_as_string(self) -> str:
         classes = [class_name for class_name, is_in_list in zip(SpellInfo.classes, self.in_class_spell_list) if is_in_list]
         return ", ".join(classes)
+
+    def __str__(self) -> str:
+        spell_info_str = ("{name}\n"
+                          "{level} {school} {ritual}\n"
+                          "Casting Time: {cast_time}\n"
+                          "Range: {range}\n"
+                          "Components: {vsm}{comp_details}\n"
+                          "Duration: {concentration}{duration}\n"
+                          "{description}\n"
+                          "At Higher Levels: {higher_levels}\n"
+                          "Classes: {classes}").format(
+                                name=self.name,
+                                level=self.get_level_as_string(),
+                                school=self.school,
+                                ritual='(ritual)' if self.ritual else '',
+                                cast_time=self.get_cast_time_as_str(),
+                                range=self.range,
+                                vsm=self.get_vsm_components_as_string(),
+                                comp_details= ' (' + self.components + ')' if self.components else '',
+                                concentration='Concentration, up to ' if self.concentration else '',
+                                duration=self.duration,
+                                description=self.description,
+                                higher_levels=self.higher_levels,
+                                classes=self.get_classes_as_string())
+        return spell_info_str
 
 
 if __name__ == '__main__':
@@ -127,17 +152,13 @@ if __name__ == '__main__':
                             v_component= 1,
                             s_component= 1,
                             m_component= 1,
-                            components= 'a cup of water',
-                            components_tags= [],
+                            components= 'a cup of water', # If none, use an empty string
+                            components_tags= [], # If none, use an empty list
                             concentration= 0,
                             duration= '1 hour',
                             description= 'A protective magical force surrounds you, manifesting as a spectral frost that covers you and your gear. You gain 5 temporary hit points for the duration. If a creature hits you with a melee attack while you have these hit points, the creature takes 5 cold damage.',
                             description_tags= [],
                             higher_levels= 'When you cast this spell using a spell slot of 2nd level or higher, both the temporary hit points and the cold damage increase by 5 for every level above 1st.',
                             higher_levels_tags= [],
-                            in_class_spell_list=(False, False, False, True, False, False, True, False))
+                            in_class_spell_list=(False, False, False, False, False, False, True, False))
     print(spell_info)
-    print(spell_info.get_level_as_string())
-    print(spell_info.get_cast_time_as_str())
-    print(spell_info.get_vsm_components_as_string())
-    print(spell_info.get_classes_as_string())
