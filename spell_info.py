@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from itertools import compress
 
 @dataclass
 class SpellInfo:
@@ -8,13 +9,13 @@ class SpellInfo:
     ritual: bool
     cast_time: float
     range: str
+    concentration: bool
+    duration: str
     v_component: bool
     s_component: bool
     m_component: bool
     components: str
     components_tags: list
-    concentration: bool
-    duration: str
     description: str
     description_tags: list
     higher_levels: str
@@ -113,7 +114,7 @@ class SpellInfo:
         return vsm_str
 
     def get_classes_as_string(self) -> str:
-        classes = [class_name for class_name, is_in_list in zip(SpellInfo.classes, self.in_class_spell_list) if is_in_list]
+        classes = compress(SpellInfo.classes, self.in_class_spell_list)
         return ", ".join(classes)
 
     def __str__(self) -> str:
@@ -149,9 +150,9 @@ if __name__ == '__main__':
                             ritual= 0,
                             cast_time= SpellInfo.value_from_cast_time(1, 'action'),
                             range= 'Self',
-                            v_component= 1,
-                            s_component= 1,
-                            m_component= 1,
+                            v_component= True,
+                            s_component= True,
+                            m_component= True,
                             components= 'a cup of water', # If none, use an empty string
                             components_tags= [], # If none, use an empty list
                             concentration= 0,
