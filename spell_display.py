@@ -6,8 +6,6 @@ from tkinter import StringVar, font as tkFont
 from my_tk_extensions import ExtendedTextBox, TextEditor
 from spell_info import SpellInfo
 
-spell_names = ["Poof", "Zap", "Alakazam", "Abracadabra", "Disintegrate", "Wish", "Fireball", "Speak with Animals", "Bless", "Augury", "Arms of Hadar", "Shillelagh", "Leomund's Tiny Hut", "Cure Wounds", "Mass Cure Wounds"]
-spell_names = sorted(spell_names)
 
 spell_data = SpellInfo( name= 'Bless',
                         ritual= 0,
@@ -57,6 +55,8 @@ class SpellListPane(ttk.Frame):
     def __init__(self, parent):
         ttk.Frame.__init__(self, parent, relief=tk.GROOVE, borderwidth=3)
         self.parent = parent
+        self.spell_names = ["Bless"]
+        self.spell_names = sorted(self.spell_names)
         self.configure_layout()
         self.add_widgets()
         
@@ -65,8 +65,8 @@ class SpellListPane(ttk.Frame):
 
     def add_widgets(self):
         # Converts Python list to the list type that tk uses
-        spell_namesvar = tk.StringVar(value=spell_names)
-        self.lstbx_spell_names = tk.Listbox(self, listvariable=spell_namesvar)
+        self.spell_namesvar = tk.StringVar(value=self.spell_names)
+        self.lstbx_spell_names = tk.Listbox(self, listvariable=self.spell_namesvar)
         self.scrlbr_spell_names = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.lstbx_spell_names.yview)
         self.lstbx_spell_names['yscrollcommand'] = self.scrlbr_spell_names.set # Connects the listbox back to the scrollbar to determine the visual motion of the bar
         self.btn_new_spell = ttk.Button(self, text='New Spell...', command=self.new_spell_callback)
@@ -83,7 +83,10 @@ class SpellListPane(ttk.Frame):
     def edit_spell_callback(self):
         pass
 
-    def update_spell_entry(self, spell_info: Dict):
+    def update_spell_list(self, spell_info: SpellInfo):
+        self.spell_names.append(spell_info.name)
+        self.spell_names = sorted(self.spell_names)
+        self.spell_namesvar.set(self.spell_names)
         print(spell_info)
 
 
@@ -179,7 +182,7 @@ class NewSpellWindow(tk.Toplevel):
         self.destroy()
 
     def confirm_close(self):
-        self.parent.update_spell_entry(self.frm_spell_info.get_spell_data())
+        self.parent.update_spell_list(self.frm_spell_info.get_spell_data())
         self.dismiss()
 
 
