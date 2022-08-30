@@ -25,7 +25,8 @@ spell_data = SpellInfo( name= 'Bless',
                         description= "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw.",
                         description_tags= [('bold', '1.0', '1.5', '1.16', '1.24'), ('italic', '1.7', '1.14'), ('bolditalic', '3.0', '3.17')],
                         higher_levels= "When you cast a this spell using a spell slot of 2nd level or higher, you can target one additional creature for each slot level above 1st.",
-                        higher_levels_tags= [])
+                        higher_levels_tags= [],
+                        in_class_spell_list=(False, True, False, False, False, False, False, False))
 
 class MainApplication(ttk.Frame):
     def __init__(self, parent):
@@ -282,7 +283,35 @@ class NewSpellPane(ttk.Frame):
         self.txt_higher_levels.grid(row=12, column=0, columnspan=7, sticky='nsew', padx=5)
 
     def get_spell_data(self):
-        spell_data = {}
+        spell_data = SpellInfo(
+            name=self.ent_name.get(),
+            level=SpellInfo.level_string_to_number(self.cmb_level.get()),
+            school=self.cmb_school.get(),
+            ritual=bool(self.chk_ritual_value),
+            cast_time=SpellInfo.value_from_cast_time(self.spn_cast_time.get(), self.cmb_cast_unit.get()),
+            range='{} {}'.format(self.spn_range.get(), self.cmb_range_unit.get()),
+            concentration=self.chk_concentration_value,
+            duration=self.ent_duration.get(),
+            v_component=self.chk_components_V_value,
+            s_component=self.chk_components_S_value,
+            m_component=self.chk_components_M_value,
+            components=self.txt_components.get(),
+            components_tags=self.txt_components.txt_editor.extract_text_tags(),
+            description=self.txt_description.get(),
+            description_tags=self.txt_description.txt_editor.extract_text_tags(),
+            higher_levels=self.txt_higher_levels.get(),
+            higher_levels_tags=self.txt_higher_levels.txt_editor.extract_text_tags(),
+            in_class_spell_list=(
+                self.chk_bard_value,
+                self.chk_cleric_value,
+                self.chk_druid_value,
+                self.chk_paladin_value,
+                self.chk_ranger_value,
+                self.chk_sorceror_value,
+                self.chk_warlock_value,
+                self.chk_wizard_value
+                )
+            )
         return spell_data
 
 
