@@ -40,7 +40,7 @@ class MainApplication(ttk.Frame):
 
     def configure_layout(self):
         # Setting the columns and rows to resize
-        self.columnconfigure(1, weight=1, minsize=75)
+        self.columnconfigure(1, weight=1, minsize=200)
         self.rowconfigure(0, weight=1, minsize=75)
 
     def configure_styles(self):
@@ -325,5 +325,6 @@ class NewSpellPane(ttk.Frame):
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("SpellBook")
+    root.minsize(width=600, height=75)
     MainApplication(root).pack(side="top", fill="both", expand=True)
     root.mainloop()
