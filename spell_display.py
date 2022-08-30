@@ -203,19 +203,23 @@ class NewSpellPane(ttk.Frame):
         self.lbl_level = ttk.Label(self, text="Level")
         self.cmb_level = ttk.Combobox(self)
         self.cmb_level['values'] = SpellInfo.levels
+        self.cmb_level.state(["readonly"])
         self.lbl_school = ttk.Label(self, text="School")
         self.cmb_school = ttk.Combobox(self)
         self.cmb_school['values'] = SpellInfo.schools
+        self.cmb_school.state(["readonly"])
         self.chk_ritual_value = tk.IntVar(value=False)
         self.chk_ritual = ttk.Checkbutton(self, text='Ritual', variable=self.chk_ritual_value, onvalue=True, offvalue=False)
         self.lbl_cast_time = ttk.Label(self, text="Casting Time")
         self.spn_cast_time = ttk.Spinbox(self, from_=1, to=60, increment=1)
         self.cmb_cast_unit = ttk.Combobox(self)
         self.cmb_cast_unit['values'] = SpellInfo.cast_time_units
+        self.cmb_cast_unit.state(["readonly"])
         self.lbl_range = ttk.Label(self, text="Range")
         self.spn_range = ttk.Spinbox(self, from_=5, to=1000, increment=5)
         self.cmb_range_unit = ttk.Combobox(self)
         self.cmb_range_unit['values'] = SpellInfo.range_units
+        self.cmb_range_unit.state(["readonly"])
         self.lbl_components = ttk.Label(self, text="Components")
         self.chk_components_V_value = tk.IntVar(value=True)
         self.chk_components_V = ttk.Checkbutton(self, text='V', variable=self.chk_components_V_value, onvalue=True, offvalue=False)
