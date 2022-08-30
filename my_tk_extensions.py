@@ -1,3 +1,4 @@
+from cgitb import text
 import tkinter as tk
 import tkinter.ttk as ttk
 from typing import Dict, List, Tuple
@@ -141,7 +142,8 @@ class TextEditor(ttk.Frame):
         self.txt_editor.grid(row=1, column=0, columnspan=5, padx=5, pady=5, sticky='nsew')
 
     def get(self):
-        return self.txt_editor.get('1.0', 'end')
+        text_str = self.txt_editor.get('1.0', 'end')
+        return text_str.strip()
 
     def format_button_callback(self, tag_name: str):
         selection_range = self.txt_editor.tag_ranges('sel')
