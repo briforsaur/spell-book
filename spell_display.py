@@ -7,24 +7,46 @@ from my_tk_extensions import ExtendedTextBox, TextEditor
 from spell_info import SpellInfo
 
 
-spell_data = SpellInfo( name= 'Bless',
-                        ritual= 0,
-                        level= 1,
-                        school= 'Enchantment',
-                        cast_time= SpellInfo.value_from_cast_time(1, 'action'),
-                        duration= '1 minute',
-                        range= '30 feet',
-                        concentration= 1,
-                        v_component= 1,
-                        s_component= 1,
-                        m_component= 1,
-                        components= 'A sprinkling of holy water',
-                        components_tags= [],
-                        description= "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw.",
-                        description_tags= [('bold', '1.0', '1.5', '1.16', '1.24'), ('italic', '1.7', '1.14'), ('bolditalic', '3.0', '3.17')],
-                        higher_levels= "When you cast a this spell using a spell slot of 2nd level or higher, you can target one additional creature for each slot level above 1st.",
-                        higher_levels_tags= [],
-                        in_class_spell_list=(False, True, False, False, False, False, False, False))
+spell1 = SpellInfo(
+    name= 'Bless',
+    ritual= 0,
+    level= 1,
+    school= 'Enchantment',
+    cast_time= SpellInfo.value_from_cast_time(1, 'action'),
+    duration= '1 minute',
+    range= '30 feet',
+    concentration= 1,
+    v_component= 1,
+    s_component= 1,
+    m_component= 1,
+    components= 'a sprinkling of holy water',
+    components_tags= [],
+    description= "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw.",
+    description_tags= [('bold', '1.16', '1.24'), ('italic', '1.7', '1.14'), ('bolditalic', '3.0', '3.17')],
+    higher_levels= "When you cast a this spell using a spell slot of 2nd level or higher, you can target one additional creature for each slot level above 1st.",
+    higher_levels_tags= [],
+    in_class_spell_list=(False, True, False, False, False, False, False, False))
+spell2 = SpellInfo(
+    name= 'False Life',
+    ritual= 0,
+    level= 1,
+    school= 'Necromancy',
+    cast_time= SpellInfo.value_from_cast_time(1, 'action'),
+    duration= '1 hour',
+    range= 'Self',
+    concentration= 0,
+    v_component= 1,
+    s_component= 1,
+    m_component= 1,
+    components= 'a small amount of alcohol or distilled spirits',
+    components_tags= [],
+    description= "Bolstering yourself with a necromantic facsimile of life, you gain 1d4 + 4 temporary hit points for the duration.",
+    description_tags= [('bold', '1.67', '1.74'), ('bolditalic', '3.0', '3.17')],
+    higher_levels= "When you cast a this spell using a spell slot of 2nd level or higher, you gain 5 additional temporary hit points for each slot level above 1st.",
+    higher_levels_tags= [],
+    in_class_spell_list=(False, True, False, False, False, True, False, True))
+
+spell_data = {spell1.name: spell1, spell2.name: spell2}
 
 class MainApplication(ttk.Frame):
     def __init__(self, parent):
@@ -55,8 +77,7 @@ class SpellListPane(ttk.Frame):
     def __init__(self, parent):
         ttk.Frame.__init__(self, parent, relief=tk.GROOVE, borderwidth=3)
         self.parent = parent
-        self.spell_names = ["Bless"]
-        self.spell_names = sorted(self.spell_names)
+        self.spell_names = sorted(spell_data.keys())
         self.configure_layout()
         self.add_widgets()
         
@@ -69,6 +90,7 @@ class SpellListPane(ttk.Frame):
         self.lstbx_spell_names = tk.Listbox(self, listvariable=self.spell_namesvar)
         self.scrlbr_spell_names = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.lstbx_spell_names.yview)
         self.lstbx_spell_names['yscrollcommand'] = self.scrlbr_spell_names.set # Connects the listbox back to the scrollbar to determine the visual motion of the bar
+        self.lstbx_spell_names.bind("<<ListboxSelect>>", lambda e: self.list_selection_callback(self.lstbx_spell_names.curselection()))
         self.btn_new_spell = ttk.Button(self, text='New Spell...', command=self.new_spell_callback)
         self.btn_edit_spell = ttk.Button(self, text='Edit Spell...', command=self.edit_spell_callback)
         # Placing the widgets on the grid
@@ -84,10 +106,15 @@ class SpellListPane(ttk.Frame):
         pass
 
     def update_spell_list(self, spell_info: SpellInfo):
-        self.spell_names.append(spell_info.name)
-        self.spell_names = sorted(self.spell_names)
+        spell_data.update({spell_info.name: spell_info})
+        self.spell_names = sorted(spell_data.keys())
         self.spell_namesvar.set(self.spell_names)
         print(spell_info)
+
+    def list_selection_callback(self, selection: Tuple):
+        if selection:
+            spell_selected = self.lstbx_spell_names.get(selection[0])
+            self.parent.spell_info_pane.update_spell_info(spell_data[spell_selected])
 
 
 class SpellInfoPane(ttk.Frame):
@@ -96,30 +123,24 @@ class SpellInfoPane(ttk.Frame):
         self.parent = parent
         self.configure_layout()
         self.add_widgets()
-        self.update_spell_info(spell_data)
 
     def configure_layout(self):
         # Two equal width, resizable columns
         self.columnconfigure([0,1], weight=1, minsize=200)
 
     def add_widgets(self):
-        self.lbl_name = ttk.Label(self, text="Spell Name", anchor=tk.CENTER, style='SpellTitle.TLabel')
-        self.lbl_ritual = ttk.Label(self, text="Ritual", anchor=tk.CENTER, style='Emph.SpellInfo.TLabel')
-        self.lbl_level = ttk.Label(self, text="Level 1", anchor=tk.CENTER, style='SpellInfo.TLabel')
-        self.lbl_school = ttk.Label(self, text="Abjuration", anchor=tk.CENTER, style='SpellInfo.TLabel')
-        self.lbl_cast_time = ttk.Label(self, text="Casting Time: 1 action", anchor=tk.CENTER, style='SpellInfo.TLabel')
-        self.lbl_range = ttk.Label(self, text="Range: 60 ft", anchor=tk.CENTER, style='SpellInfo.TLabel')
-        self.lbl_duration = ttk.Label(self, text="Duration: Instantaneous", anchor=tk.CENTER, style='SpellInfo.TLabel')
-        self.lbl_concentration = ttk.Label(self, text="Concentration", anchor=tk.CENTER, style='SpellInfo.TLabel')
-        self.lbl_components = ttk.Label(self, text="VSM*", anchor=tk.CENTER, style='SpellInfo.TLabel')
+        self.lbl_name = ttk.Label(self, anchor=tk.CENTER, style='SpellTitle.TLabel')
+        self.lbl_ritual = ttk.Label(self, anchor=tk.CENTER, style='Emph.SpellInfo.TLabel')
+        self.lbl_level = ttk.Label(self, anchor=tk.CENTER, style='SpellInfo.TLabel')
+        self.lbl_school = ttk.Label(self, anchor=tk.CENTER, style='SpellInfo.TLabel')
+        self.lbl_cast_time = ttk.Label(self, anchor=tk.CENTER, style='SpellInfo.TLabel')
+        self.lbl_range = ttk.Label(self, anchor=tk.CENTER, style='SpellInfo.TLabel')
+        self.lbl_duration = ttk.Label(self, anchor=tk.CENTER, style='SpellInfo.TLabel')
+        self.lbl_concentration = ttk.Label(self, anchor=tk.CENTER, style='SpellInfo.TLabel')
+        self.lbl_components = ttk.Label(self, anchor=tk.CENTER, style='SpellInfo.TLabel')
         self.txt_components = ExtendedTextBox(self, width=50, height=2, borderwidth=0, background="beige", font='TkTextFont', wrap="word")
         self.txt_description = ExtendedTextBox(self, width=50, borderwidth=0, background="beige", font='TkTextFont', wrap="word")
-        # Filling the text boxes with example text
-        self.txt_components.insert("1.0","Several small pieces of a broken bowl and a ruby worth at least 100 gp, which the spell consumes")
-        self.txt_components.tag_add('centering', '1.0', 'end')
-        self.txt_components.tag_configure('centering', justify=tk.CENTER)
         self.txt_components['state'] = 'disabled'
-        self.txt_description.insert("1.0","You throw a bowl full of porridge into the air. Each creature within 5 feet must make a Dexterity saving throw or be covered in porridge.\n\nThis spell does not affect gelatinous cubes.")
         self.txt_description['state'] = 'disabled'
         # Placing the widgets on the grid
         self.lbl_name.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
@@ -140,13 +161,18 @@ class SpellInfoPane(ttk.Frame):
         self.lbl_ritual['text'] = 'Ritual' if spell_info.ritual else ''
         self.lbl_level['text'] = spell_info.get_level_as_string()
         self.lbl_school['text'] = spell_info.school
-        self.lbl_cast_time['text'] = spell_info.get_cast_time_as_str()
-        self.lbl_range['text'] = spell_info.range
-        self.lbl_duration['text'] = spell_info.duration
+        self.lbl_cast_time['text'] = 'Casting Time: ' + spell_info.get_cast_time_as_str()
+        self.lbl_range['text'] = 'Range: ' + spell_info.range
+        self.lbl_duration['text'] = 'Duration: ' + spell_info.duration
         self.lbl_concentration['text'] = 'Concentration' if spell_info.concentration else ''
         self.lbl_components['text'] = spell_info.get_vsm_components_as_string()
         # Updating the text boxes
-        self.txt_components.update_text_box(spell_info.components, keep_tags=True)
+        if spell_info.components:
+            component_text = '(' + spell_info.components + ')'
+        else:
+            component_text = ''
+        self.txt_components.update_text_box(component_text)
+        self.txt_components.apply_text_tags(spell_info.components_tags)
         self.txt_description.update_text_box(spell_info.description)
         self.txt_description['state'] = 'normal'
         self.txt_description.insert('end', '\n\nAt Higher Levels. ' + spell_info.higher_levels)
