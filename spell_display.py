@@ -203,8 +203,8 @@ class NewSpellPane(ttk.Frame):
         self.lbl_school = ttk.Label(self, text="School")
         self.cmb_school = ttk.Combobox(self)
         self.cmb_school['values'] = SpellInfo.schools
-        self.chk_ritual_value = tk.IntVar(value=0)
-        self.chk_ritual = ttk.Checkbutton(self, text='Ritual', variable=self.chk_ritual_value, onvalue=1, offvalue=0)
+        self.chk_ritual_value = tk.IntVar(value=False)
+        self.chk_ritual = ttk.Checkbutton(self, text='Ritual', variable=self.chk_ritual_value, onvalue=True, offvalue=False)
         self.lbl_cast_time = ttk.Label(self, text="Casting Time")
         self.spn_cast_time = ttk.Spinbox(self, from_=1, to=60, increment=1)
         self.cmb_cast_unit = ttk.Combobox(self)
@@ -214,34 +214,34 @@ class NewSpellPane(ttk.Frame):
         self.cmb_range_unit = ttk.Combobox(self)
         self.cmb_range_unit['values'] = SpellInfo.range_units
         self.lbl_components = ttk.Label(self, text="Components")
-        self.chk_components_V_value = tk.IntVar(value=1)
-        self.chk_components_V = ttk.Checkbutton(self, text='V', variable=self.chk_components_V_value, onvalue=1, offvalue=0)
-        self.chk_components_S_value = tk.IntVar(value=1)
-        self.chk_components_S = ttk.Checkbutton(self, text='S', variable=self.chk_components_S_value, onvalue=1, offvalue=0)
-        self.chk_components_M_value = tk.IntVar(value=1)
-        self.chk_components_M = ttk.Checkbutton(self, text='M', variable=self.chk_components_M_value, onvalue=1, offvalue=0)
+        self.chk_components_V_value = tk.IntVar(value=True)
+        self.chk_components_V = ttk.Checkbutton(self, text='V', variable=self.chk_components_V_value, onvalue=True, offvalue=False)
+        self.chk_components_S_value = tk.IntVar(value=True)
+        self.chk_components_S = ttk.Checkbutton(self, text='S', variable=self.chk_components_S_value, onvalue=True, offvalue=False)
+        self.chk_components_M_value = tk.IntVar(value=True)
+        self.chk_components_M = ttk.Checkbutton(self, text='M', variable=self.chk_components_M_value, onvalue=True, offvalue=False)
         self.txt_components = TextEditor(self)
         self.lbl_duration = ttk.Label(self, text="Duration")
         self.ent_duration = ttk.Entry(self)
-        self.chk_concentration_value = tk.IntVar(value=0)
-        self.chk_concentration = ttk.Checkbutton(self, text='Concentration', variable=self.chk_concentration_value, onvalue=1, offvalue=0)
+        self.chk_concentration_value = tk.IntVar(value=False)
+        self.chk_concentration = ttk.Checkbutton(self, text='Concentration', variable=self.chk_concentration_value, onvalue=True, offvalue=False)
         self.frm_classes = ttk.Frame(self, relief='groove')
-        self.chk_bard_value = tk.IntVar(value=0)
-        self.chk_bard = ttk.Checkbutton(self.frm_classes, text='Bard', variable=self.chk_bard_value, onvalue=1, offvalue=0)
-        self.chk_cleric_value = tk.IntVar(value=0)
-        self.chk_cleric = ttk.Checkbutton(self.frm_classes, text='Cleric', variable=self.chk_cleric_value, onvalue=1, offvalue=0)
-        self.chk_druid_value = tk.IntVar(value=0)
-        self.chk_druid = ttk.Checkbutton(self.frm_classes, text='Druid', variable=self.chk_druid_value, onvalue=1, offvalue=0)
-        self.chk_paladin_value = tk.IntVar(value=0)
-        self.chk_paladin = ttk.Checkbutton(self.frm_classes, text='Paladin', variable=self.chk_paladin_value, onvalue=1, offvalue=0)
-        self.chk_ranger_value = tk.IntVar(value=0)
-        self.chk_ranger = ttk.Checkbutton(self.frm_classes, text='Ranger', variable=self.chk_ranger_value, onvalue=1, offvalue=0)
-        self.chk_sorceror_value = tk.IntVar(value=0)
-        self.chk_sorceror = ttk.Checkbutton(self.frm_classes, text='Sorceror', variable=self.chk_sorceror_value, onvalue=1, offvalue=0)
-        self.chk_warlock_value = tk.IntVar(value=0)
-        self.chk_warlock = ttk.Checkbutton(self.frm_classes, text='Warlock', variable=self.chk_warlock_value, onvalue=1, offvalue=0)
-        self.chk_wizard_value = tk.IntVar(value=0)
-        self.chk_wizard = ttk.Checkbutton(self.frm_classes, text='Wizard', variable=self.chk_wizard_value, onvalue=1, offvalue=0)
+        self.chk_bard_value = tk.IntVar(value=False)
+        self.chk_bard = ttk.Checkbutton(self.frm_classes, text='Bard', variable=self.chk_bard_value, onvalue=True, offvalue=False)
+        self.chk_cleric_value = tk.IntVar(value=False)
+        self.chk_cleric = ttk.Checkbutton(self.frm_classes, text='Cleric', variable=self.chk_cleric_value, onvalue=True, offvalue=False)
+        self.chk_druid_value = tk.IntVar(value=False)
+        self.chk_druid = ttk.Checkbutton(self.frm_classes, text='Druid', variable=self.chk_druid_value, onvalue=True, offvalue=False)
+        self.chk_paladin_value = tk.IntVar(value=False)
+        self.chk_paladin = ttk.Checkbutton(self.frm_classes, text='Paladin', variable=self.chk_paladin_value, onvalue=True, offvalue=False)
+        self.chk_ranger_value = tk.IntVar(value=False)
+        self.chk_ranger = ttk.Checkbutton(self.frm_classes, text='Ranger', variable=self.chk_ranger_value, onvalue=True, offvalue=False)
+        self.chk_sorceror_value = tk.IntVar(value=False)
+        self.chk_sorceror = ttk.Checkbutton(self.frm_classes, text='Sorceror', variable=self.chk_sorceror_value, onvalue=True, offvalue=False)
+        self.chk_warlock_value = tk.IntVar(value=False)
+        self.chk_warlock = ttk.Checkbutton(self.frm_classes, text='Warlock', variable=self.chk_warlock_value, onvalue=True, offvalue=False)
+        self.chk_wizard_value = tk.IntVar(value=False)
+        self.chk_wizard = ttk.Checkbutton(self.frm_classes, text='Wizard', variable=self.chk_wizard_value, onvalue=True, offvalue=False)
         self.lbl_description = ttk.Label(self, text='Description')
         self.txt_description = TextEditor(self)
         self.lbl_higher_levels = ttk.Label(self, text='At Higher Levels')
@@ -287,14 +287,14 @@ class NewSpellPane(ttk.Frame):
             name=self.ent_name.get(),
             level=SpellInfo.level_string_to_number(self.cmb_level.get()),
             school=self.cmb_school.get(),
-            ritual=bool(self.chk_ritual_value),
-            cast_time=SpellInfo.value_from_cast_time(self.spn_cast_time.get(), self.cmb_cast_unit.get()),
-            range='{} {}'.format(self.spn_range.get(), self.cmb_range_unit.get()),
-            concentration=self.chk_concentration_value,
+            ritual=self.chk_ritual_value.get(),
+            cast_time=SpellInfo.value_from_cast_time(int(self.spn_cast_time.get()), self.cmb_cast_unit.get()),
+            range=SpellInfo.range_as_string(self.spn_range.get(), self.cmb_range_unit.get()),
+            concentration=self.chk_concentration_value.get(),
             duration=self.ent_duration.get(),
-            v_component=self.chk_components_V_value,
-            s_component=self.chk_components_S_value,
-            m_component=self.chk_components_M_value,
+            v_component=self.chk_components_V_value.get(),
+            s_component=self.chk_components_S_value.get(),
+            m_component=self.chk_components_M_value.get(),
             components=self.txt_components.get(),
             components_tags=self.txt_components.txt_editor.extract_text_tags(),
             description=self.txt_description.get(),
@@ -302,14 +302,14 @@ class NewSpellPane(ttk.Frame):
             higher_levels=self.txt_higher_levels.get(),
             higher_levels_tags=self.txt_higher_levels.txt_editor.extract_text_tags(),
             in_class_spell_list=(
-                self.chk_bard_value,
-                self.chk_cleric_value,
-                self.chk_druid_value,
-                self.chk_paladin_value,
-                self.chk_ranger_value,
-                self.chk_sorceror_value,
-                self.chk_warlock_value,
-                self.chk_wizard_value
+                self.chk_bard_value.get(),
+                self.chk_cleric_value.get(),
+                self.chk_druid_value.get(),
+                self.chk_paladin_value.get(),
+                self.chk_ranger_value.get(),
+                self.chk_sorceror_value.get(),
+                self.chk_warlock_value.get(),
+                self.chk_wizard_value.get()
                 )
             )
         return spell_data
