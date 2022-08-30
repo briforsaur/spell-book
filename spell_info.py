@@ -103,6 +103,13 @@ class SpellInfo:
             level_str = level_str + '-level'
         return level_str
 
+    def range_as_string(range_quantity: int, range_unit: str) -> str:
+        if range_unit == SpellInfo.range_units[2]:
+            range_str = '{} {}'.format(range_quantity, range_unit)
+        else:
+            range_str = range_unit
+        return range_str
+
     def get_vsm_components_as_string(self) -> str:
         vsm_str = ''
         if self.v_component:
