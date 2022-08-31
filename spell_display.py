@@ -22,7 +22,7 @@ spell1 = SpellInfo(
     components= 'a sprinkling of holy water',
     components_tags= [],
     description= "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw.",
-    description_tags= [('bold', '1.16', '1.24'), ('italic', '1.7', '1.14'), ('bolditalic', '3.0', '3.17')],
+    description_tags= [('bold', ('1.16', '1.24')), ('italic', ('1.7', '1.14')), ('bolditalic', ('3.0', '3.17'))],
     higher_levels= "When you cast a this spell using a spell slot of 2nd level or higher, you can target one additional creature for each slot level above 1st.",
     higher_levels_tags= [],
     in_class_spell_list=(False, True, False, False, False, False, False, False))
@@ -41,7 +41,7 @@ spell2 = SpellInfo(
     components= 'a small amount of alcohol or distilled spirits',
     components_tags= [],
     description= "Bolstering yourself with a necromantic facsimile of life, you gain 1d4 + 4 temporary hit points for the duration.",
-    description_tags= [('bold', '1.67', '1.74'), ('bolditalic', '3.0', '3.17')],
+    description_tags= [('bold', ('1.67', '1.74')), ('bolditalic', ('3.0', '3.17'))],
     higher_levels= "When you cast a this spell using a spell slot of 2nd level or higher, you gain 5 additional temporary hit points for each slot level above 1st.",
     higher_levels_tags= [],
     in_class_spell_list=(False, True, False, False, False, True, False, True))
@@ -175,7 +175,11 @@ class SpellInfoPane(ttk.Frame):
         self.txt_components.apply_text_tags(spell_info.components_tags)
         self.txt_description.update_text_box(spell_info.description)
         self.txt_description['state'] = 'normal'
-        self.txt_description.insert('end', '\n\nAt Higher Levels. ' + spell_info.higher_levels)
+        if spell_info.higher_levels:
+            higher_levels_text = '\n\nAt Higher Levels. ' + spell_info.higher_levels
+        else:
+            higher_levels_text = ''
+        self.txt_description.insert('end', higher_levels_text)
         self.txt_description.apply_text_tags(spell_info.description_tags)
         self.txt_description['state'] = 'disabled'
 
