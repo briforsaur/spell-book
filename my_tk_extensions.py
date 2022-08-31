@@ -59,13 +59,13 @@ class ExtendedTextBox(tk.Text):
 
         The tags are returned as a list of tuples where the first element 
         is a character string of the tag name, and the following elements 
-        are pairs of start and end indices of the text ranges where the tag
+        are tuples of start and end indices of the text ranges where the tag
         is applied.
 
         Example output:
 
-        [('bold', '1.0', '1.5', '2.0', 2.7'),
-        ('centering', '1.0', '3.0')]
+        [('bold', ('1.0', '1.5'), ('2.0', 2.7')),
+        ('centering', ('1.0', '3.0'))]
         
         In the example, the 'bold' tag has been applied to two text ranges,
         (1.0 to 1.5 and 2.0 to 2.7) while the 'centering' tag has been 
@@ -73,8 +73,11 @@ class ExtendedTextBox(tk.Text):
         '''
         tag_names = list(self.tag_names())
         tag_names.remove('sel')
-        tag_ranges = [self.tag_ranges(tag) for tag in tag_names]
-        saved_tags = [tuple([tag_name]) + tag_range for (tag_name, tag_range) in zip(tag_names, tag_ranges)]
+        saved_tags = []
+        for tag in tag_names:
+            tag_ranges = self.tag_ranges(tag)
+            grouped_tags = [(start_index, end_index) for (start_index, end_index) in zip(tag_ranges[::2],tag_ranges[1::2])]
+            saved_tags.append(tuple([tag]) + tuple(grouped_tags))
         return saved_tags
     
     def apply_text_tags(self, tag_list: List[Tuple[str,...]]):
@@ -82,13 +85,13 @@ class ExtendedTextBox(tk.Text):
         Apply a list of tags to this text box.
 
         The tags in the list are all applied to the text box for the 
-        specified ranges. The tags must be configured elsewhere to
-        produce a formatting effect.
+        specified ranges. The tags must be configured to produce a 
+        formatting effect.
 
         Example tag_list input:
 
-        [('bold', '1.0', '1.5', '2.0', 2.7'),
-        ('centering', '1.0', '3.0')]
+        [('bold', ('1.0', '1.5'), ('2.0', 2.7')),
+        ('centering', ('1.0', '3.0'))]
         
         In the example, the 'bold' tag will be applied to two text ranges,
         (1.0 to 1.5 and 2.0 to 2.7) while the 'centering' tag will be
@@ -97,8 +100,8 @@ class ExtendedTextBox(tk.Text):
         for tag in tag_list:
             tag_name = tag[0]
             tag_ranges = tag[1:]
-            for (start_index, end_index) in zip(tag_ranges[::2],tag_ranges[1::2]):
-                self.tag_add(tag_name, start_index, end_index)
+            for tag_range in tag_ranges:
+                self.tag_add(tag_name, tag_range[0], tag_range[1])
 
     def update_text_box(self, new_text: str, keep_tags = False):
         '''
