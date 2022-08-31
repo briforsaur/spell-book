@@ -53,19 +53,21 @@ class ExtendedTextBox(tk.Text):
         self.tag_configure('italic',font=italic_font)
         self.tag_configure('bolditalic',font=bolditalic_font)
     
-    def extract_text_tags(self) -> List[Tuple[str,...]]:
+    def extract_text_tags(self) -> Dict[str, List[Tuple[str, str]]]:
         '''
         Extract all tags applied to this text box except the "selection" tag.
 
-        The tags are returned as a list of tuples where the first element 
-        is a character string of the tag name, and the following elements 
-        are tuples of start and end indices of the text ranges where the tag
-        is applied.
+        The tags are returned as a dictionary of lists of tuples where 
+        the keys of the dict are the tag name, and the values of the dict 
+        are tuples of start and end indices of the text ranges where the 
+        tag is applied.
 
         Example output:
 
-        [('bold', ('1.0', '1.5'), ('2.0', 2.7')),
-        ('centering', ('1.0', '3.0'))]
+        {
+            'bold': [('1.0', '1.5'), ('2.0', 2.7')],
+            'centering': [('1.0', '3.0')]
+        }
         
         In the example, the 'bold' tag has been applied to two text ranges,
         (1.0 to 1.5 and 2.0 to 2.7) while the 'centering' tag has been 
@@ -73,35 +75,36 @@ class ExtendedTextBox(tk.Text):
         '''
         tag_names = list(self.tag_names())
         tag_names.remove('sel')
-        saved_tags = []
+        saved_tags = {}
         for tag in tag_names:
             tag_ranges = self.tag_ranges(tag)
             grouped_tags = [(start_index, end_index) for (start_index, end_index) in zip(tag_ranges[::2],tag_ranges[1::2])]
-            saved_tags.append(tuple([tag]) + tuple(grouped_tags))
+            saved_tags.update({tag: tuple(grouped_tags)})
         return saved_tags
     
-    def apply_text_tags(self, tag_list: List[Tuple[str,...]]):
+    def apply_text_tags(self, tag_dict: Dict[str, List[Tuple[str, str]]]):
         '''
-        Apply a list of tags to this text box.
+        Apply a dictionary of tags to this text box.
 
-        The tags in the list are all applied to the text box for the 
+        The tags in the dictionary are all applied to the text box for the 
         specified ranges. The tags must be configured to produce a 
         formatting effect.
 
         Example tag_list input:
 
-        [('bold', ('1.0', '1.5'), ('2.0', 2.7')),
-        ('centering', ('1.0', '3.0'))]
+        {
+            'bold': [('1.0', '1.5'), ('2.0', 2.7')],
+            'centering': [('1.0', '3.0')]
+        }
         
         In the example, the 'bold' tag will be applied to two text ranges,
         (1.0 to 1.5 and 2.0 to 2.7) while the 'centering' tag will be
         applied to a single range.
         '''
-        for tag in tag_list:
-            tag_name = tag[0]
-            tag_ranges = tag[1:]
+        for tag in tag_dict.keys():
+            tag_ranges = tag_dict[tag]
             for tag_range in tag_ranges:
-                self.tag_add(tag_name, tag_range[0], tag_range[1])
+                self.tag_add(tag, tag_range[0], tag_range[1])
 
     def update_text_box(self, new_text: str, keep_tags = False):
         '''
@@ -163,7 +166,24 @@ class TextEditor(ttk.Frame):
         self.txt_editor.focus_set() # returns focus to the text widgets
 
 if __name__ == "__main__":
+    def save_tags(txt_editor: TextEditor):
+        saved_tags = txt_editor.txt_editor.extract_text_tags()
+        txt_editor.saved_tags = saved_tags
+    def clear_tags(txt_editor: TextEditor):
+        for tag in txt_editor.txt_editor.tag_names():
+            txt_editor.txt_editor.tag_remove(tag, '1.0', 'end')
+    def apply_tags(txt_editor: TextEditor):
+        if txt_editor.saved_tags:
+            txt_editor.txt_editor.apply_text_tags(txt_editor.saved_tags)
+
     root = tk.Tk()
     root.title('Tk Extensions')
-    TextEditor(root).pack(side="top", fill="both", expand=True)
+    txt_editor = TextEditor(root)
+    btn_save_tags = ttk.Button(root, text='Save Tags', command=lambda :save_tags(txt_editor))
+    btn_clear_tags = ttk.Button(root, text='Clear Tags', command=lambda :clear_tags(txt_editor))
+    btn_reapply_tags = ttk.Button(root, text='Reapply Tags', command=lambda :apply_tags(txt_editor))
+    txt_editor.pack(side="top", fill="both", expand=True)
+    btn_save_tags.pack()
+    btn_clear_tags.pack()
+    btn_reapply_tags.pack()
     root.mainloop()
