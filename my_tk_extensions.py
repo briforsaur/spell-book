@@ -183,6 +183,39 @@ class TextEditor(ttk.Frame):
         self.txt_editor.insert('insert', ' • ')
         self.txt_editor.focus_set() # returns focus to the text widgets
 
+
+def shift_tag_range(
+        tag_range: Tuple[str,str], line_shift: int, 
+        char_shift: int) -> Tuple[str,str]:
+    """
+    Shifts a pair of tag indices by a number of lines and characters
+
+    This function is useful for combining formatted text sourced from 
+    multiple text boxes. For example, when adding formatted text to a 
+    text box that already has 4 lines of text, all the format tags of 
+    the tags of the text being added would need to be shifted by 4 
+    lines; or, when adding a prefix to some formatted text, such as
+    "Name: ", the tags would need to be shifted by a set number of 
+    characters (6 in the example given).
+
+    Example input and output:
+    tag_range = ('1.0', '1.12')
+    line_shift = 4
+    char_shift = 5
+
+    output: ('5.5', '5.17')
+    """
+    shifted_tag_range = []
+    for tag_index in tag_range:
+        tag_index_numbers = [
+            str(int(index_part) + shift)
+            for (index_part, shift)
+            in zip(tag_index.split('.'), (line_shift, char_shift))
+        ]
+        shifted_tag_range.append('.'.join(tag_index_numbers))
+    return tuple(shifted_tag_range)
+
+
 if __name__ == "__main__":
     def save_tags(txt_editor: TextEditor):
         saved_tags = txt_editor.txt_editor.extract_text_tags()
@@ -210,5 +243,5 @@ if __name__ == "__main__":
     btn_save_tags.pack()
     btn_clear_tags.pack()
     btn_reapply_tags.pack()
-    print(ExtendedTextBox.__doc__)
+    print(shift_tag_range(('1.0', '1.15'), 0, 5))
     root.mainloop()
