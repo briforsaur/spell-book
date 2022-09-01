@@ -84,9 +84,9 @@ class ExtendedTextBox(tk.Text):
         for tag in tag_names:
             tag_ranges = self.tag_ranges(tag)
             grouped_tags = [
-                (start_index, end_index) for (start_index, end_index) 
+                (str(start_index), str(end_index)) for (start_index, end_index) 
                 in zip(tag_ranges[::2],tag_ranges[1::2])]
-            saved_tags.update({tag: tuple(grouped_tags)})
+            saved_tags.update({tag: grouped_tags})
         return saved_tags
     
     def apply_text_tags(self, tag_dict: TagDict):
@@ -219,16 +219,40 @@ def shift_tag_range(
     return tuple(shifted_tag_range)
 
 
+def shift_tag_dict(
+        tag_dict: TagDict, line_shift: int, char_shift: int) -> TagDict:
+    """
+    Shifts an entire dictionary of tags by a number of lines and char.'s
+
+    This function applies the shift_tag_range function to every tag 
+    defined in a dictionary of tag ranges.
+    """
+    shifted_tag_dict = {}
+    for tag in tag_dict.keys():
+        shifted_range_list = [
+                    shift_tag_range(tag_range, line_shift, char_shift)
+                    for tag_range in tag_dict[tag]
+                ]
+        shifted_tag_dict.update({tag: shifted_range_list})
+    return shifted_tag_dict
+
+
 if __name__ == "__main__":
+    tag_storage = {}
     def save_tags(txt_editor: TextEditor):
-        saved_tags = txt_editor.txt_editor.extract_text_tags()
-        txt_editor.saved_tags = saved_tags
+        global tag_storage 
+        tag_storage = txt_editor.txt_editor.extract_text_tags()
     def clear_tags(txt_editor: TextEditor):
         for tag in txt_editor.txt_editor.tag_names():
             txt_editor.txt_editor.tag_remove(tag, '1.0', 'end')
-    def apply_tags(txt_editor: TextEditor):
-        if txt_editor.saved_tags:
-            txt_editor.txt_editor.apply_text_tags(txt_editor.saved_tags)
+    def apply_tags():
+        if tag_storage:
+            txt_editor.txt_editor.apply_text_tags(tag_storage)
+    def shift_tags(txt_editor: TextEditor, shift_list: list[int,int]):
+        global tag_storage
+        clear_tags(txt_editor)
+        tag_storage = shift_tag_dict(tag_storage, *shift_list)
+        apply_tags()
 
     root = tk.Tk()
     root.title('Tk Extensions')
@@ -240,11 +264,20 @@ if __name__ == "__main__":
         root, text='Clear Tags', command=lambda :clear_tags(txt_editor)
     )
     btn_reapply_tags = ttk.Button(
-        root, text='Reapply Tags', command=lambda :apply_tags(txt_editor)
+        root, text='Reapply Tags', command=lambda :apply_tags()
+    )
+    btn_shift_tags_right = ttk.Button(
+        root, text='Shift Tags Right', 
+        command=lambda :shift_tags(txt_editor, [0, 1])
+    )
+    btn_shift_tags_down = ttk.Button(
+        root, text='Shift Tags Down', 
+        command=lambda :shift_tags(txt_editor, [1, 0])
     )
     txt_editor.pack(side="top", fill="both", expand=True)
     btn_save_tags.pack()
     btn_clear_tags.pack()
     btn_reapply_tags.pack()
-    print(shift_tag_range(('1.0', '1.15'), 0, 5))
+    btn_shift_tags_right.pack()
+    btn_shift_tags_down.pack()
     root.mainloop()
