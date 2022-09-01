@@ -7,8 +7,8 @@ from tkinter import font as tkFont
 class ExtendedTextBox(tk.Text):
     '''A text box with added useful methods.
 
-    ExtendedTextBox is a subclass of the Tkinter Text widget. It adds the 
-    following methods to make handling tags and text easier:
+    ExtendedTextBox is a subclass of the Tkinter Text widget. It adds 
+    the following methods to make handling tags and text easier:
 
     extract_text_tags()
 
@@ -16,7 +16,8 @@ class ExtendedTextBox(tk.Text):
 
     update_text_box(new_text, keep_tags)
 
-    ExtendedTextBox also configures some tags to format text more easily:
+    ExtendedTextBox also configures some tags to format text more 
+    easily:
 
     'bold'
 
@@ -33,9 +34,9 @@ class ExtendedTextBox(tk.Text):
 
         See the superclass constructor for detailed documentation.
 
-        The custom fonts and tags are defined on instantiation for
-        each text box object independently. This allows you to change
-        the font for each text box by manually editing the defined
+        The custom fonts and tags are defined on instantiation for each 
+        text box object independently. This allows you to change the 
+        font for each text box by manually editing the defined
         fonts and reconfiguring the tags.
         '''
         tk.Text.__init__(self, parent, **keywords)
@@ -55,12 +56,12 @@ class ExtendedTextBox(tk.Text):
     
     def extract_text_tags(self) -> Dict[str, List[Tuple[str, str]]]:
         '''
-        Extract all tags applied to this text box except the "selection" tag.
+        Extract all tags applied to this text box except the "sel" tag.
 
         The tags are returned as a dictionary of lists of tuples where 
-        the keys of the dict are the tag name, and the values of the dict 
-        are tuples of start and end indices of the text ranges where the 
-        tag is applied.
+        the keys of the dict are the tag name, and the values of the 
+        dict are tuples of start and end indices of the text ranges 
+        where the tag is applied.
 
         Example output:
 
@@ -69,16 +70,18 @@ class ExtendedTextBox(tk.Text):
             'centering': [('1.0', '3.0')]
         }
         
-        In the example, the 'bold' tag has been applied to two text ranges,
-        (1.0 to 1.5 and 2.0 to 2.7) while the 'centering' tag has been 
-        applied to a single range.
+        In the example, the 'bold' tag has been applied to two text 
+        ranges, (1.0 to 1.5 and 2.0 to 2.7) while the 'centering' tag 
+        has been applied to a single range.
         '''
         tag_names = list(self.tag_names())
         tag_names.remove('sel')
         saved_tags = {}
         for tag in tag_names:
             tag_ranges = self.tag_ranges(tag)
-            grouped_tags = [(start_index, end_index) for (start_index, end_index) in zip(tag_ranges[::2],tag_ranges[1::2])]
+            grouped_tags = [
+                (start_index, end_index) for (start_index, end_index) 
+                in zip(tag_ranges[::2],tag_ranges[1::2])]
             saved_tags.update({tag: tuple(grouped_tags)})
         return saved_tags
     
@@ -86,8 +89,8 @@ class ExtendedTextBox(tk.Text):
         '''
         Apply a dictionary of tags to this text box.
 
-        The tags in the dictionary are all applied to the text box for the 
-        specified ranges. The tags must be configured to produce a 
+        The tags in the dictionary are all applied to the text box for 
+        the specified ranges. The tags must be configured to produce a 
         formatting effect.
 
         Example tag_list input:
@@ -97,9 +100,9 @@ class ExtendedTextBox(tk.Text):
             'centering': [('1.0', '3.0')]
         }
         
-        In the example, the 'bold' tag will be applied to two text ranges,
-        (1.0 to 1.5 and 2.0 to 2.7) while the 'centering' tag will be
-        applied to a single range.
+        In the example, the 'bold' tag will be applied to two text 
+        ranges, (1.0 to 1.5 and 2.0 to 2.7) while the 'centering' tag 
+        will be applied to a single range.
         '''
         for tag in tag_dict.keys():
             tag_ranges = tag_dict[tag]
@@ -110,7 +113,7 @@ class ExtendedTextBox(tk.Text):
         '''
         Update a text box with entirely new text.
 
-        The content of the text box is replaced with the string new_text.
+        Replaces the content of the text box with the string new_text.
 
         The option keep_tags is useful for text boxes that should keep
         their formatting, such as centering, after updating.
@@ -135,17 +138,32 @@ class TextEditor(ttk.Frame):
         self.italic_text = False
 
     def add_widgets(self):
-        self.btn_boldtext = ttk.Button(self, text='Bold', command= lambda: self.format_button_callback('bold'))
-        self.btn_italictext = ttk.Button(self, text='Italic', command= lambda: self.format_button_callback('italic'))
-        self.btn_bolditalictext = ttk.Button(self, text='Bold + Italic', command= lambda: self.format_button_callback('bolditalic'))
-        self.btn_addbullet = ttk.Button(self, text='•', command=self.insert_bullet)
-        self.txt_editor = ExtendedTextBox(self, width=100, height=10, borderwidth=1, font='TkTextFont', wrap="word")
+        self.btn_boldtext = ttk.Button(
+            self, text='Bold', 
+            command= lambda: self.format_button_callback('bold')
+        )
+        self.btn_italictext = ttk.Button(
+            self, text='Italic',
+            command= lambda: self.format_button_callback('italic')
+        )
+        self.btn_bolditalictext = ttk.Button(
+            self, text='Bold + Italic',
+            command= lambda: self.format_button_callback('bolditalic')
+        )
+        self.btn_addbullet = ttk.Button(
+            self, text='•', command=self.insert_bullet
+        )
+        self.txt_editor = ExtendedTextBox(
+            self, width=100, height=10, borderwidth=1, font='TkTextFont',
+            wrap="word")
         # Placing widgets on a grid
         self.btn_boldtext.grid(row=0, column=0, padx=[5, 2.5])
         self.btn_italictext.grid(row=0, column=1, padx=2.5)
         self.btn_bolditalictext.grid(row=0, column=2, padx=2.5)
         self.btn_addbullet.grid(row=0, column=3, padx=2.5)
-        self.txt_editor.grid(row=1, column=0, columnspan=5, padx=5, pady=5, sticky='nsew')
+        self.txt_editor.grid(
+            row=1, column=0, columnspan=5, padx=5, pady=5, sticky='nsew'
+        )
 
     def get(self):
         text_str = self.txt_editor.get('1.0', 'end')
@@ -179,11 +197,18 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title('Tk Extensions')
     txt_editor = TextEditor(root)
-    btn_save_tags = ttk.Button(root, text='Save Tags', command=lambda :save_tags(txt_editor))
-    btn_clear_tags = ttk.Button(root, text='Clear Tags', command=lambda :clear_tags(txt_editor))
-    btn_reapply_tags = ttk.Button(root, text='Reapply Tags', command=lambda :apply_tags(txt_editor))
+    btn_save_tags = ttk.Button(
+        root, text='Save Tags', command=lambda :save_tags(txt_editor)
+    )
+    btn_clear_tags = ttk.Button(
+        root, text='Clear Tags', command=lambda :clear_tags(txt_editor)
+    )
+    btn_reapply_tags = ttk.Button(
+        root, text='Reapply Tags', command=lambda :apply_tags(txt_editor)
+    )
     txt_editor.pack(side="top", fill="both", expand=True)
     btn_save_tags.pack()
     btn_clear_tags.pack()
     btn_reapply_tags.pack()
+    print(ExtendedTextBox.__doc__)
     root.mainloop()
