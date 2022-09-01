@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from itertools import compress
+from my_tk_extensions import TagDict
 
 @dataclass
 class SpellInfo:
@@ -15,11 +16,11 @@ class SpellInfo:
     s_component: bool
     m_component: bool
     components: str
-    components_tags: list
+    components_tags: TagDict
     description: str
-    description_tags: list
+    description_tags: TagDict
     higher_levels: str
-    higher_levels_tags: list
+    higher_levels_tags: TagDict
     in_class_spell_list: tuple[bool, bool, bool, bool, bool, bool, bool, bool]
     #
     levels = (

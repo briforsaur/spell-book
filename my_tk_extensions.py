@@ -4,6 +4,10 @@ import tkinter.ttk as ttk
 from typing import Dict, List, Tuple
 from tkinter import font as tkFont
 
+TagRange = tuple[str,str]
+TagDict = dict[str,list[TagRange]]
+
+
 class ExtendedTextBox(tk.Text):
     '''A text box with added useful methods.
 
@@ -54,7 +58,7 @@ class ExtendedTextBox(tk.Text):
         self.tag_configure('italic',font=italic_font)
         self.tag_configure('bolditalic',font=bolditalic_font)
     
-    def extract_text_tags(self) -> Dict[str, List[Tuple[str, str]]]:
+    def extract_text_tags(self) -> TagDict:
         '''
         Extract all tags applied to this text box except the "sel" tag.
 
@@ -85,7 +89,7 @@ class ExtendedTextBox(tk.Text):
             saved_tags.update({tag: tuple(grouped_tags)})
         return saved_tags
     
-    def apply_text_tags(self, tag_dict: Dict[str, List[Tuple[str, str]]]):
+    def apply_text_tags(self, tag_dict: TagDict):
         '''
         Apply a dictionary of tags to this text box.
 
@@ -185,8 +189,7 @@ class TextEditor(ttk.Frame):
 
 
 def shift_tag_range(
-        tag_range: Tuple[str,str], line_shift: int, 
-        char_shift: int) -> Tuple[str,str]:
+        tag_range: TagRange, line_shift: int, char_shift: int) -> TagRange:
     """
     Shifts a pair of tag indices by a number of lines and characters
 
