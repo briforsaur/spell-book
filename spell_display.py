@@ -83,9 +83,14 @@ class MainApplication(ttk.Frame):
         self.configure_styles()
         self.spell_list_pane = SpellListPane(self)
         self.spell_info_pane = SpellInfoPane(self)
+        self.set_bindings()
 
-        self.spell_list_pane.grid(column=0, row=0, padx=5, pady=5, sticky="nsew") # Positions this frame in the window grid
-        self.spell_info_pane.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
+        self.spell_list_pane.grid(
+            column=0, row=0, padx=5, pady=5, sticky="nsew"
+        )
+        self.spell_info_pane.grid(
+            column=1, row=0, padx=5, pady=5, sticky="nsew"
+        )
 
     def configure_layout(self):
         # Setting the columns and rows to resize
@@ -95,9 +100,23 @@ class MainApplication(ttk.Frame):
     def configure_styles(self):
         self.style = ttk.Style()
         self.style.configure('SpellInfo.TFrame', background='beige')
-        self.style.configure('SpellTitle.TLabel', background='beige', font='20')
+        self.style.configure(
+            'SpellTitle.TLabel', background='beige', font='20'
+        )
         self.style.configure('SpellInfo.TLabel', background='beige')
-        self.style.configure('Emph.SpellInfo.TLabel', font='-size 10 -slant italic')
+        self.style.configure(
+            'Emph.SpellInfo.TLabel', font='-size 10 -slant italic'
+        )
+
+    def set_bindings(self):
+        self.spell_list_pane.bind(
+            "<<SpellSelect>>", lambda e:self.spell_selection()
+        )
+
+    def spell_selection(self):
+        spell_selected = self.spell_list_pane.get_list_selection()
+        if spell_selected:
+            self.spell_info_pane.update_spell_info(spell_data[spell_selected])
 
 
 class SpellListPane(ttk.Frame):
@@ -122,12 +141,10 @@ class SpellListPane(ttk.Frame):
         )
         # Connecting the listbox back to the scrollbar
         self.lstbx_spell_names['yscrollcommand'] = self.scrlbr_spell_names.set 
-        # Binding the callback for the listbox
+        # The SpellSelect event should be handled by the parent
         self.lstbx_spell_names.bind(
-            "<<ListboxSelect>>", 
-            lambda e: self.list_selection_callback(
-                self.lstbx_spell_names.curselection()
-            )
+            "<<ListboxSelect>>",
+            lambda e:self.event_generate('<<SpellSelect>>')
         )
         self.btn_new_spell = ttk.Button(
             self, text='New Spell...', command=self.new_spell_callback
@@ -155,12 +172,12 @@ class SpellListPane(ttk.Frame):
         self.spell_namesvar.set(self.spell_names)
         print(spell_info)
 
-    def list_selection_callback(self, selection: Tuple):
-        if selection:
-            spell_selected = self.lstbx_spell_names.get(selection[0])
-            self.parent.spell_info_pane.update_spell_info(
-                spell_data[spell_selected]
-            )
+    def get_list_selection(self) -> str:
+        selected_items = self.lstbx_spell_names.curselection()
+        selected_spell = ''
+        if selected_items:
+            selected_spell = self.lstbx_spell_names.get(selected_items[0])
+        return selected_spell
 
 
 class SpellInfoPane(ttk.Frame):
