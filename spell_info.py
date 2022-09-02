@@ -12,16 +12,14 @@ class SpellInfo:
     range: str
     concentration: bool
     duration: str
-    v_component: bool
-    s_component: bool
-    m_component: bool
-    components: str
-    components_tags: TagDict
+    components: dict[str, bool]
+    materials: str
+    materials_tags: TagDict
     description: str
     description_tags: TagDict
     higher_levels: str
     higher_levels_tags: TagDict
-    in_class_spell_list: tuple[bool, bool, bool, bool, bool, bool, bool, bool]
+    in_class_spell_list: dict[str, bool]
     #
     levels = (
         'Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', 
@@ -128,17 +126,13 @@ class SpellInfo:
         return range_str
 
     def get_vsm_components_as_string(self) -> str:
-        vsm_str = ''
-        if self.v_component:
-            vsm_str += 'V'
-        if self.s_component:
-            vsm_str += 'S'
-        if self.m_component:
-            vsm_str += 'M'
-        return vsm_str
+        components = compress(self.components.keys(), self.components.values())
+        return ''.join(components)
 
     def get_classes_as_string(self) -> str:
-        classes = compress(SpellInfo.classes, self.in_class_spell_list)
+        classes = compress(
+            self.in_class_spell_list.keys(), self.in_class_spell_list.values()
+        )
         return ", ".join(classes)
 
     def __str__(self) -> str:
@@ -147,7 +141,7 @@ class SpellInfo:
             "{level} {school} {ritual}\n"
             "Casting Time: {cast_time}\n"
             "Range: {range}\n"
-            "Components: {vsm}{comp_details}\n"
+            "Components: {vsm}{materials}\n"
             "Duration: {concentration}{duration}\n"
             "{description}\n"
             "At Higher Levels: {higher_levels}\n"
@@ -160,7 +154,7 @@ class SpellInfo:
             cast_time=self.get_cast_time_as_str(),
             range=self.range,
             vsm=self.get_vsm_components_as_string(),
-            comp_details=' ('+ self.components +')' if self.components else '',
+            materials=' ('+ self.materials +')' if self.materials else '',
             concentration=(
                 'Concentration, up to ' if self.concentration else ''),
             duration=self.duration,
@@ -179,11 +173,9 @@ if __name__ == '__main__':
         ritual= 0,
         cast_time= SpellInfo.value_from_cast_time(1, 'action'),
         range= 'Self',
-        v_component= True,
-        s_component= True,
-        m_component= True,
-        components= 'a cup of water', # If none, use an empty string
-        components_tags= [], # If none, use an empty list
+        components={'V': True, 'S': False, 'M': True},
+        materials= 'a cup of water', # If none, use an empty string
+        materials_tags= {}, # If none, use an empty dict
         concentration= 0,
         duration= '1 hour',
         description= ('A protective magical force surrounds you, manifesting '
@@ -191,13 +183,15 @@ if __name__ == '__main__':
             'temporary hit points for the duration. If a creature hits you '
             'with a melee attack while you have these hit points, the creature'
             ' takes 5 cold damage.'),
-        description_tags= [],
+        description_tags= {},
         higher_levels= ('When you cast this spell using a spell slot of 2nd '
             'level or higher, both the temporary hit points and the cold '
             'damage increase by 5 for every level above 1st.'),
-        higher_levels_tags= [],
-        in_class_spell_list=(
-            False, False, False, False, False, False, True, False
-        )
+        higher_levels_tags= {},
+        in_class_spell_list={
+            'Bard': False, 'Cleric': False, 'Druid': False, 
+            'Paladin': False, 'Ranger': False, 'Sorceror': False,
+            'Warlock': True, 'Wizard': False
+        }
     )
     print(spell_info)

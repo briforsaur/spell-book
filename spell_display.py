@@ -16,11 +16,9 @@ spell1 = SpellInfo(
     duration= '1 minute',
     range= '30 feet',
     concentration= 1,
-    v_component= 1,
-    s_component= 1,
-    m_component= 1,
-    components= 'a sprinkling of holy water',
-    components_tags= {},
+    components={'V': True, 'S': True, 'M': True},
+    materials= 'a sprinkling of holy water',
+    materials_tags= {},
     description= (
         "You bless up to three creatures of your choice within range. "
         "Whenever a target makes an attack roll or a saving throw before the "
@@ -37,7 +35,11 @@ spell1 = SpellInfo(
         "1st."
     ),
     higher_levels_tags= {},
-    in_class_spell_list=(False, True, False, False, False, False, False, False)
+    in_class_spell_list={
+        'Bard': False, 'Cleric': True, 'Druid': False, 
+        'Paladin': False, 'Ranger': False, 'Sorceror': False,
+        'Warlock': False, 'Wizard': False
+    }
 )
 spell2 = SpellInfo(
     name= 'False Life',
@@ -48,11 +50,9 @@ spell2 = SpellInfo(
     duration= '1 hour',
     range= 'Self',
     concentration= 0,
-    v_component= 1,
-    s_component= 1,
-    m_component= 1,
-    components= 'a small amount of alcohol or distilled spirits',
-    components_tags= {},
+    components={'V': True, 'S': True, 'M': True},
+    materials= 'a small amount of alcohol or distilled spirits',
+    materials_tags= {},
     description=(
         "Bolstering yourself with a necromantic facsimile of life, you gain "
         "1d4 + 4 temporary hit points for the duration."
@@ -66,7 +66,11 @@ spell2 = SpellInfo(
         " 1st."
     ),
     higher_levels_tags= {},
-    in_class_spell_list=(False, True, False, False, False, True, False, True)
+    in_class_spell_list={
+            'Bard': False, 'Cleric': True, 'Druid': False, 
+            'Paladin': False, 'Ranger': False, 'Sorceror': True,
+            'Warlock': False, 'Wizard': True
+        }
 )
 
 spell_data = {spell1.name: spell1, spell2.name: spell2}
@@ -246,11 +250,11 @@ class SpellInfoPane(ttk.Frame):
             if spell_info.concentration else '')
         self.lbl_components['text'] = spell_info.get_vsm_components_as_string()
         # Updating the text boxes
-        component_text = spell_info.components
-        if component_text:
-            component_text = '({})'.format(component_text)
-        self.txt_components.update_text_box(component_text)
-        self.txt_components.apply_text_tags(spell_info.components_tags)
+        materials_text = spell_info.materials
+        if materials_text:
+            materials_text = '({})'.format(materials_text)
+        self.txt_components.update_text_box(materials_text)
+        self.txt_components.apply_text_tags(spell_info.materials_tags)
         self.txt_description.update_text_box(spell_info.description)
         self.txt_description['state'] = 'normal'
         higher_levels_text = spell_info.higher_levels
