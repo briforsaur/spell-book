@@ -226,6 +226,8 @@ def shift_tag_dict(
 
     This function applies the shift_tag_range function to every tag 
     defined in a dictionary of tag ranges.
+
+    Returns a new dictionary.
     """
     shifted_tag_dict = {}
     for tag in tag_dict.keys():
@@ -236,6 +238,24 @@ def shift_tag_dict(
         shifted_tag_dict.update({tag: shifted_range_list})
     return shifted_tag_dict
 
+
+def add_tag_to_dict(tag_dict: TagDict, key: str, tag_range: TagRange):
+    if key in tag_dict:
+        tag_dict[key].append(tag_range)
+    else:
+        tag_dict.update({key: [tag_range,]})
+
+
+def create_tagrange(start_line: int, start_char: int = 0, 
+        end_line: int = None, end_char: int = None) -> TagRange:
+    if end_line is None:
+        end_line = start_line
+    if end_char is None:
+        end_char = 'end'
+    start_index = '.'.join([str(start_line), str(start_char)])
+    end_index = '.'.join([str(end_line), str(end_char)])
+    tag_range = (start_index, end_index)
+    return tag_range
 
 if __name__ == "__main__":
     tag_storage = {}

@@ -3,7 +3,7 @@ import tkinter.ttk as ttk
 from typing import Dict, List, Tuple
 from tkinter import StringVar, font as tkFont
 
-from my_tk_extensions import ExtendedTextBox, TextEditor
+from my_tk_extensions import ExtendedTextBox, TextEditor, add_tag_to_dict, create_tagrange, shift_tag_dict
 from spell_info import SpellInfo
 
 
@@ -26,15 +26,14 @@ spell1 = SpellInfo(
         "the attack roll or saving throw."
     ),
     description_tags= {
-        'bold': [('1.16', '1.24')], 'italic': [('1.7', '1.14')],
-        'bolditalic': [('3.0', '3.17')]
+        'bold': [('1.16', '1.24')], 'italic': [('1.7', '1.14')]
     },
     higher_levels= (
         "When you cast a this spell using a spell slot of 2nd level or higher,"
         " you can target one additional creature for each slot level above "
         "1st."
     ),
-    higher_levels_tags= {},
+    higher_levels_tags= {'bold': [('1.49', '1.51')]},
     in_class_spell_list={
         'Bard': False, 'Cleric': True, 'Druid': False, 
         'Paladin': False, 'Ranger': False, 'Sorceror': False,
@@ -58,7 +57,7 @@ spell2 = SpellInfo(
         "1d4 + 4 temporary hit points for the duration."
     ),
     description_tags= {
-        'bold': [('1.67', '1.74')], 'bolditalic': [('3.0', '3.17')]
+        'bold': [('1.67', '1.74')]
     },
     higher_levels=(
         "When you cast a this spell using a spell slot of 2nd level or higher,"
@@ -281,9 +280,24 @@ class SpellInfoPane(ttk.Frame):
         self.txt_description['state'] = 'normal'
         higher_levels_text = spell_info.higher_levels
         if higher_levels_text:
-            higher_levels_text = '\n\nAt Higher Levels. ' + higher_levels_text
+            higher_levels_prefix = '\n\nAt Higher Levels. '
+            higher_levels_text = higher_levels_prefix + higher_levels_text
+            higher_levels_line_offset = (
+                spell_info.description + higher_levels_prefix
+            ).count('\n')
+            higher_levels_char_offset = len(higher_levels_prefix.strip('\n'))
+            higher_levels_prefix_tags = create_tagrange(
+                higher_levels_line_offset + 1, 
+                end_char=higher_levels_char_offset
+            )
+            higher_levels_tags_shifted = shift_tag_dict(
+                spell_info.higher_levels_tags, higher_levels_line_offset, 
+                higher_levels_char_offset
+            )
+            add_tag_to_dict(higher_levels_tags_shifted, 'bolditalic', higher_levels_prefix_tags)
         self.txt_description.insert('end', higher_levels_text)
         self.txt_description.apply_text_tags(spell_info.description_tags)
+        self.txt_description.apply_text_tags(higher_levels_tags_shifted)
         self.txt_description['state'] = 'disabled'
 
 
@@ -296,7 +310,7 @@ class SpellEditWindow(tk.Toplevel):
         self.columnconfigure(2, weight=1)
         self.rowconfigure(0, weight=1)
         if spell_info is not None:
-            self.frm_spell_info.populate_widgets(spell_info)
+            self.frm_spell_info.populate_fields(spell_info)
         # Defining close button behaviour
         self.protocol('WM_DELETE_WINDOW', self.dismiss) 
         # Making this the only interactable window
@@ -470,7 +484,7 @@ class NewSpellPane(ttk.Frame):
         )
         return spell_data
 
-    def populate_widgets(self, spell_info: SpellInfo):
+    def populate_fields(self, spell_info: SpellInfo):
         self.ent_name.insert(0, spell_info.name)
         self.cmb_level.current(spell_info.level)
         self.cmb_school.current(spell_info.get_school_as_number())
@@ -500,6 +514,9 @@ class NewSpellPane(ttk.Frame):
         )
         self.txt_higher_levels.txt_editor.update_text_box(
             spell_info.higher_levels
+        )
+        self.txt_higher_levels.txt_editor.apply_text_tags(
+            spell_info.higher_levels_tags
         )
 
 
