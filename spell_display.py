@@ -161,10 +161,15 @@ class SpellListPane(ttk.Frame):
         self.btn_edit_spell.grid(column=1, row=1)
 
     def new_spell_callback(self):
-        win_new_spell = NewSpellWindow(self)
+        SpellEditWindow(self)
 
     def edit_spell_callback(self):
-        pass
+        spell_selected = self.get_list_selection()
+        if spell_selected:
+            spell_info = spell_data[spell_selected]
+        else:
+            spell_info = None
+        SpellEditWindow(self, spell_info)
 
     def update_spell_list(self, spell_info: SpellInfo):
         spell_data.update({spell_info.name: spell_info})
@@ -282,14 +287,16 @@ class SpellInfoPane(ttk.Frame):
         self.txt_description['state'] = 'disabled'
 
 
-class NewSpellWindow(tk.Toplevel):
-    def __init__(self, parent):
+class SpellEditWindow(tk.Toplevel):
+    def __init__(self, parent, spell_info: SpellInfo = None):
         super().__init__(parent)
         self.parent = parent
         self.title('New Spell...')
         self.add_widgets()
         self.columnconfigure(2, weight=1)
         self.rowconfigure(0, weight=1)
+        if spell_info is not None:
+            self.frm_spell_info.populate_widgets(spell_info)
         # Defining close button behaviour
         self.protocol('WM_DELETE_WINDOW', self.dismiss) 
         # Making this the only interactable window
@@ -359,7 +366,7 @@ class NewSpellPane(ttk.Frame):
         self.chk_components_S = ttk.Checkbutton(self, text='S', variable=self.chk_components_S_value, onvalue=True, offvalue=False)
         self.chk_components_M_value = tk.IntVar(value=True)
         self.chk_components_M = ttk.Checkbutton(self, text='M', variable=self.chk_components_M_value, onvalue=True, offvalue=False)
-        self.txt_components = TextEditor(self)
+        self.txt_materials = TextEditor(self)
         self.lbl_duration = ttk.Label(self, text="Duration")
         self.ent_duration = ttk.Entry(self)
         self.chk_concentration_value = tk.IntVar(value=False)
@@ -406,7 +413,7 @@ class NewSpellPane(ttk.Frame):
         self.chk_components_V.grid(row=7, column=1)
         self.chk_components_S.grid(row=7, column=2)
         self.chk_components_M.grid(row=7, column=3)
-        self.txt_components.grid(row=8, column=0, columnspan=7, sticky='nsew', padx=5)
+        self.txt_materials.grid(row=8, column=0, columnspan=7, sticky='nsew', padx=5)
         self.frm_classes.grid(row=0, column=5, rowspan=6, padx=5)
         self.chk_bard.grid(row=0, column=0, padx=5, pady=2.5, sticky='w')
         self.chk_cleric.grid(row=1, column=0, padx=5, pady=2.5, sticky='w')
@@ -435,11 +442,13 @@ class NewSpellPane(ttk.Frame):
             ),
             concentration=self.chk_concentration_value.get(),
             duration=self.ent_duration.get(),
-            v_component=self.chk_components_V_value.get(),
-            s_component=self.chk_components_S_value.get(),
-            m_component=self.chk_components_M_value.get(),
-            components=self.txt_components.get(),
-            components_tags=self.txt_components.txt_editor.extract_text_tags(),
+            components={
+                'V': self.chk_components_V_value.get(),
+                'S': self.chk_components_S_value.get(),
+                'M': self.chk_components_M_value.get()
+            },
+            materials=self.txt_materials.get(),
+            materials_tags=self.txt_materials.txt_editor.extract_text_tags(),
             description=self.txt_description.get(),
             description_tags=(
                 self.txt_description.txt_editor.extract_text_tags()
@@ -448,18 +457,50 @@ class NewSpellPane(ttk.Frame):
             higher_levels_tags=(
                 self.txt_higher_levels.txt_editor.extract_text_tags()
             ),
-            in_class_spell_list=(
-                self.chk_bard_value.get(),
-                self.chk_cleric_value.get(),
-                self.chk_druid_value.get(),
-                self.chk_paladin_value.get(),
-                self.chk_ranger_value.get(),
-                self.chk_sorceror_value.get(),
-                self.chk_warlock_value.get(),
-                self.chk_wizard_value.get()
-            )
+            in_class_spell_list={
+                'Bard': self.chk_bard_value.get(),
+                'Cleric': self.chk_cleric_value.get(),
+                'Druid': self.chk_druid_value.get(),
+                'Paladin': self.chk_paladin_value.get(),
+                'Ranger': self.chk_ranger_value.get(),
+                'Sorceror': self.chk_sorceror_value.get(),
+                'Warlock': self.chk_warlock_value.get(),
+                'Wizard': self.chk_wizard_value.get()
+            }
         )
         return spell_data
+
+    def populate_widgets(self, spell_info: SpellInfo):
+        self.ent_name.insert(0, spell_info.name)
+        self.cmb_level.current(spell_info.level)
+        self.cmb_school.current(spell_info.get_school_as_number())
+        self.chk_ritual_value.set(spell_info.ritual)
+        cast_time_tuple = spell_info.get_cast_time_as_quantity_and_unit()
+        self.spn_cast_time.set(cast_time_tuple[0])
+        self.cmb_cast_unit.current(
+            SpellInfo.cast_time_units.index(cast_time_tuple[1])
+        )
+        range_tuple = spell_info.get_range_as_quantity_and_unit()
+        self.spn_range.set(range_tuple[0])
+        self.cmb_range_unit.current(
+            SpellInfo.range_units.index(range_tuple[1])
+        )
+        self.chk_concentration_value.set(spell_info.concentration)
+        self.ent_duration.insert(0, spell_info.duration)
+        self.chk_components_V_value.set(spell_info.components['V'])
+        self.chk_components_S_value.set(spell_info.components['S'])
+        self.chk_components_M_value.set(spell_info.components['M'])
+        self.txt_materials.txt_editor.update_text_box(spell_info.materials)
+        self.txt_materials.txt_editor.apply_text_tags(
+            spell_info.materials_tags
+        )
+        self.txt_description.txt_editor.update_text_box(spell_info.description)
+        self.txt_description.txt_editor.apply_text_tags(
+            spell_info.description_tags
+        )
+        self.txt_higher_levels.txt_editor.update_text_box(
+            spell_info.higher_levels
+        )
 
 
 if __name__ == "__main__":

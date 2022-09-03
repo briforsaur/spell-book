@@ -73,6 +73,18 @@ class SpellInfo:
             time_value = time_quantity*time_value
         return time_value
 
+    def get_cast_time_as_quantity_and_unit(self) -> tuple[int,str]:
+        cast_time = self.cast_time
+        length = len(self.cast_time_values)
+        reversed_index_list = [
+            time_value <= cast_time for time_value 
+            in reversed(self.cast_time_values)
+        ]
+        index = length - reversed_index_list.index(True) - 1
+        quantity = int(round(cast_time/self.cast_time_values[index]))
+        unit = self.cast_time_units[index]
+        return (quantity, unit)
+
     def get_cast_time_as_str(self) -> str:
         '''
         Converts a numerical value to a human-readable casting time.
@@ -125,6 +137,16 @@ class SpellInfo:
             range_str = range_unit
         return range_str
 
+    def get_range_as_quantity_and_unit(self) -> tuple[int,str]:
+        split_range = self.range.split(' ')
+        if len(split_range) > 1:
+            quantity = int(split_range[0])
+            unit = split_range[1]
+        else:
+            quantity = 0
+            unit = split_range[0]
+        return (quantity, unit)
+
     def get_vsm_components_as_string(self) -> str:
         components = compress(self.components.keys(), self.components.values())
         return ''.join(components)
@@ -134,6 +156,9 @@ class SpellInfo:
             self.in_class_spell_list.keys(), self.in_class_spell_list.values()
         )
         return ", ".join(classes)
+
+    def get_school_as_number(self) -> int:
+        return self.schools.index(self.school)
 
     def __str__(self) -> str:
         spell_info_str = (
