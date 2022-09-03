@@ -518,6 +518,14 @@ class NewSpellPane(ttk.Frame):
         self.txt_higher_levels.txt_editor.apply_text_tags(
             spell_info.higher_levels_tags
         )
+        self.chk_bard_value.set(spell_info.in_class_spell_list['Bard'])
+        self.chk_cleric_value.set(spell_info.in_class_spell_list['Cleric'])
+        self.chk_druid_value.set(spell_info.in_class_spell_list['Druid'])
+        self.chk_paladin_value.set(spell_info.in_class_spell_list['Paladin'])
+        self.chk_ranger_value.set(spell_info.in_class_spell_list['Ranger'])
+        self.chk_sorceror_value.set(spell_info.in_class_spell_list['Sorceror'])
+        self.chk_warlock_value.set(spell_info.in_class_spell_list['Warlock'])
+        self.chk_wizard_value.set(spell_info.in_class_spell_list['Wizard'])
 
 
 if __name__ == "__main__":
