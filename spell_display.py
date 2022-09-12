@@ -115,14 +115,15 @@ class MainApplication(ttk.Frame):
     def spell_selection(self):
         spell_selected = self.spell_list_pane.get_list_selection()
         if spell_selected:
-            self.spell_info_pane.update_spell_info(spell_data[spell_selected])
+            spell_info = self.spell_list_pane.get_spell_info(spell_selected)
+            self.spell_info_pane.update_spell_info(spell_info)
 
 
 class SpellListPane(ttk.Frame):
     def __init__(self, parent):
         ttk.Frame.__init__(self, parent, relief=tk.GROOVE, borderwidth=3)
         self.parent = parent
-        self.spell_names = sorted(spell_data.keys())
+        self.update_spell_names()
         self.configure_layout()
         self.add_widgets()
         
@@ -164,15 +165,12 @@ class SpellListPane(ttk.Frame):
 
     def edit_spell_callback(self):
         spell_selected = self.get_list_selection()
-        if spell_selected:
-            spell_info = spell_data[spell_selected]
-        else:
-            spell_info = None
+        spell_info = self.get_spell_info(spell_selected)
         SpellEditWindow(self, spell_info)
 
     def update_spell_list(self, spell_info: SpellInfo):
-        spell_data.update({spell_info.name: spell_info})
-        self.spell_names = sorted(spell_data.keys())
+        self.update_spell_db(spell_info)
+        self.update_spell_names()
         self.spell_namesvar.set(self.spell_names)
         print(spell_info)
 
@@ -182,6 +180,18 @@ class SpellListPane(ttk.Frame):
         if selected_items:
             selected_spell = self.lstbx_spell_names.get(selected_items[0])
         return selected_spell
+
+    def get_spell_info(self, spell_name: str) -> SpellInfo:
+        spell_info = None
+        if spell_name in spell_data.keys():
+            spell_info = spell_data[spell_name]
+        return spell_info
+
+    def update_spell_names(self):
+        self.spell_names = sorted(spell_data.keys())
+
+    def update_spell_db(self, spell_info: SpellInfo):
+        spell_data.update({spell_info.name: spell_info})
 
 
 class SpellInfoPane(ttk.Frame):
@@ -334,7 +344,7 @@ class SpellEditWindow(tk.Toplevel):
         self.destroy()
 
     def confirm_close(self):
-        self.parent.update_spell_list(self.frm_spell_info.get_spell_data())
+        self.parent.update_spell_list(self.frm_spell_info.get_spell_info())
         self.dismiss()
 
 
@@ -442,8 +452,8 @@ class NewSpellPane(ttk.Frame):
         self.lbl_higher_levels.grid(row=11, column=0, sticky='w')
         self.txt_higher_levels.grid(row=12, column=0, columnspan=7, sticky='nsew', padx=5)
 
-    def get_spell_data(self):
-        spell_data = SpellInfo(
+    def get_spell_info(self):
+        spell_info = SpellInfo(
             name=self.ent_name.get(),
             level=SpellInfo.level_string_to_number(self.cmb_level.get()),
             school=self.cmb_school.get(),
@@ -482,7 +492,7 @@ class NewSpellPane(ttk.Frame):
                 'Wizard': self.chk_wizard_value.get()
             }
         )
-        return spell_data
+        return spell_info
 
     def populate_fields(self, spell_info: SpellInfo):
         self.ent_name.insert(0, spell_info.name)
