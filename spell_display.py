@@ -514,16 +514,18 @@ class NewSpellPane(ttk.Frame):
         self.chk_components_V_value.set(spell_info.components['V'])
         self.chk_components_S_value.set(spell_info.components['S'])
         self.chk_components_M_value.set(spell_info.components['M'])
-        self.txt_materials.txt_editor.update_text_box(spell_info.materials)
+        self.txt_materials.txt_editor.update_text_box(
+            spell_info.materials, allow_editing=True)
         self.txt_materials.txt_editor.apply_text_tags(
             spell_info.materials_tags
         )
-        self.txt_description.txt_editor.update_text_box(spell_info.description)
+        self.txt_description.txt_editor.update_text_box(
+            spell_info.description, allow_editing=True)
         self.txt_description.txt_editor.apply_text_tags(
             spell_info.description_tags
         )
         self.txt_higher_levels.txt_editor.update_text_box(
-            spell_info.higher_levels
+            spell_info.higher_levels, allow_editing=True
         )
         self.txt_higher_levels.txt_editor.apply_text_tags(
             spell_info.higher_levels_tags

@@ -113,7 +113,8 @@ class ExtendedTextBox(tk.Text):
             for tag_range in tag_ranges:
                 self.tag_add(tag, tag_range[0], tag_range[1])
 
-    def update_text_box(self, new_text: str, keep_tags = False):
+    def update_text_box(
+            self, new_text: str, keep_tags = False, allow_editing = False):
         '''
         Update a text box with entirely new text.
 
@@ -129,7 +130,8 @@ class ExtendedTextBox(tk.Text):
         self.insert('1.0',new_text)
         if keep_tags:
             self.apply_text_tags(saved_tags)
-        self['state'] = 'disabled'
+        if not allow_editing:
+            self['state'] = 'disabled'
 
 
 class TextEditor(ttk.Frame):
