@@ -3,8 +3,12 @@ import json
 import sqlite3
 
 class SpellDataBase:
-    def __init__(self, name: str):
+    def __init__(self, name: str, schema_filename = ''):
         self.name = name
+        if schema_filename:
+            self.initialize_database(schema_filename)
+        self.class_ids = self.get_ids('classes')
+        self.school_ids = self.get_ids('schools')
 
     def open_connection(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.name)
@@ -85,8 +89,7 @@ class SpellDataBase:
         self.add_class_relations(spell_id, spell_info.get_classes_as_list())
 
     def add_class_relations(self, spell_id: int, class_list: list[str]):
-        class_ids = self.get_ids('classes')
-        used_ids = [class_ids[class_str] for class_str in class_list]
+        used_ids = [self.class_ids[class_str] for class_str in class_list]
         insertion_list = [(spell_id, class_id) for class_id in used_ids]
         connection = self.open_connection()
         cursor = connection.cursor()
@@ -100,8 +103,7 @@ class SpellDataBase:
         pass
 
     def convert_spell_to_dict(self, spell_info: SpellInfo) -> dict:
-        school_ids = self.get_ids('schools')
-        school = school_ids[spell_info.school]
+        school = self.school_ids[spell_info.school]
         spell_dict = {
             'spell_name': spell_info.name,
             'spell_level': spell_info.level,
@@ -126,16 +128,14 @@ class SpellDataBase:
 
 
 if __name__ == '__main__':
-    spell_db = SpellDataBase('test.sqlite3')
-    spell_db.initialize_database('spell_db_schema.sql')
+    spell_db = SpellDataBase(
+        'test.sqlite3', schema_filename='spell_db_schema.sql')
     spell_db.add_spell(example_spell)
     example_spell2 = example_spell
     example_spell2.name = 'Armor of Doofus'
     spell_db.add_spell(example_spell2)
-    class_dict = spell_db.get_ids('classes')
-    school_dict = spell_db.get_ids('schools')
-    print(class_dict)
-    print(school_dict)
+    print(spell_db.class_ids)
+    print(spell_db.school_ids)
     connection = spell_db.open_connection()
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM spells")
