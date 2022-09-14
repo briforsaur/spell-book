@@ -151,10 +151,14 @@ class SpellInfo:
         components = compress(self.components.keys(), self.components.values())
         return ''.join(components)
 
-    def get_classes_as_string(self) -> str:
+    def get_classes_as_list(self) -> list[str]:
         classes = compress(
             self.in_class_spell_list.keys(), self.in_class_spell_list.values()
         )
+        return list(classes)
+
+    def get_classes_as_string(self) -> str:
+        classes = self.get_classes_as_list()
         return ", ".join(classes)
 
     def get_school_as_number(self) -> int:
@@ -190,33 +194,34 @@ class SpellInfo:
         return spell_info_str
 
 
+example_spell = SpellInfo(
+    name= 'Armor of Agathys',
+    level= 1,
+    school= 'Abjuration',
+    ritual= 0,
+    cast_time= SpellInfo.value_from_cast_time(1, 'action'),
+    range= 'Self',
+    components={'V': True, 'S': False, 'M': True},
+    materials= 'a cup of water', # If none, use an empty string
+    materials_tags= {}, # If none, use an empty dict
+    concentration= 0,
+    duration= '1 hour',
+    description= ('A protective magical force surrounds you, manifesting '
+        'as a spectral frost that covers you and your gear. You gain 5 '
+        'temporary hit points for the duration. If a creature hits you '
+        'with a melee attack while you have these hit points, the creature'
+        ' takes 5 cold damage.'),
+    description_tags= {'bold': [('1.114', '1.138'), ('1.0', '1.7')]},
+    higher_levels= ('When you cast this spell using a spell slot of 2nd '
+        'level or higher, both the temporary hit points and the cold '
+        'damage increase by 5 for every level above 1st.'),
+    higher_levels_tags= {},
+    in_class_spell_list={
+        'Bard': False, 'Cleric': False, 'Druid': False, 
+        'Paladin': False, 'Ranger': False, 'Sorceror': False,
+        'Warlock': True, 'Wizard': True
+    }
+)
+
 if __name__ == '__main__':
-    spell_info = SpellInfo(
-        name= 'Armor of Agathys',
-        level= 1,
-        school= 'Abjuration',
-        ritual= 0,
-        cast_time= SpellInfo.value_from_cast_time(1, 'action'),
-        range= 'Self',
-        components={'V': True, 'S': False, 'M': True},
-        materials= 'a cup of water', # If none, use an empty string
-        materials_tags= {}, # If none, use an empty dict
-        concentration= 0,
-        duration= '1 hour',
-        description= ('A protective magical force surrounds you, manifesting '
-            'as a spectral frost that covers you and your gear. You gain 5 '
-            'temporary hit points for the duration. If a creature hits you '
-            'with a melee attack while you have these hit points, the creature'
-            ' takes 5 cold damage.'),
-        description_tags= {},
-        higher_levels= ('When you cast this spell using a spell slot of 2nd '
-            'level or higher, both the temporary hit points and the cold '
-            'damage increase by 5 for every level above 1st.'),
-        higher_levels_tags= {},
-        in_class_spell_list={
-            'Bard': False, 'Cleric': False, 'Druid': False, 
-            'Paladin': False, 'Ranger': False, 'Sorceror': False,
-            'Warlock': True, 'Wizard': False
-        }
-    )
-    print(spell_info)
+    print(example_spell)
