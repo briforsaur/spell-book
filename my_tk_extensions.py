@@ -4,7 +4,7 @@ import tkinter.ttk as ttk
 from typing import Dict, List, Tuple
 from tkinter import font as tkFont
 
-TagRange = tuple[str,str]
+TagRange = list[str,str]
 TagDict = dict[str,list[TagRange]]
 
 
@@ -62,16 +62,16 @@ class ExtendedTextBox(tk.Text):
         '''
         Extract all tags applied to this text box except the "sel" tag.
 
-        The tags are returned as a dictionary of lists of tuples where 
+        The tags are returned as a dictionary of lists of lists where 
         the keys of the dict are the tag name, and the values of the 
-        dict are tuples of start and end indices of the text ranges 
+        dict are lists of start and end indices of the text ranges 
         where the tag is applied.
 
         Example output:
 
         {
-            'bold': [('1.0', '1.5'), ('2.0', 2.7')],
-            'centering': [('1.0', '3.0')]
+            'bold': [['1.0', '1.5'], ['2.0', 2.7']],
+            'centering': [['1.0', '3.0']]
         }
         
         In the example, the 'bold' tag has been applied to two text 
@@ -84,7 +84,7 @@ class ExtendedTextBox(tk.Text):
         for tag in tag_names:
             tag_ranges = self.tag_ranges(tag)
             grouped_tags = [
-                (str(start_index), str(end_index)) for (start_index, end_index) 
+                [str(start_index), str(end_index)] for (start_index, end_index) 
                 in zip(tag_ranges[::2],tag_ranges[1::2])]
             saved_tags.update({tag: grouped_tags})
         return saved_tags
@@ -100,8 +100,8 @@ class ExtendedTextBox(tk.Text):
         Example tag_list input:
 
         {
-            'bold': [('1.0', '1.5'), ('2.0', 2.7')],
-            'centering': [('1.0', '3.0')]
+            'bold': [['1.0', '1.5'], ['2.0', 2.7']],
+            'centering': [['1.0', '3.0']]
         }
         
         In the example, the 'bold' tag will be applied to two text 
@@ -204,11 +204,11 @@ def shift_tag_range(
     characters (6 in the example given).
 
     Example input and output:
-    tag_range = ('1.0', '1.12')
+    tag_range = ['1.0', '1.12']
     line_shift = 4
     char_shift = 5
 
-    output: ('5.5', '5.17')
+    output: ['5.5', '5.17']
     """
     shifted_tag_range = []
     for tag_index in tag_range:
@@ -218,7 +218,7 @@ def shift_tag_range(
             in zip(tag_index.split('.'), (line_shift, char_shift))
         ]
         shifted_tag_range.append('.'.join(tag_index_numbers))
-    return tuple(shifted_tag_range)
+    return shifted_tag_range
 
 
 def shift_tag_dict(
@@ -258,6 +258,7 @@ def create_tagrange(start_line: int, start_char: int = 0,
     end_index = '.'.join([str(end_line), str(end_char)])
     tag_range = (start_index, end_index)
     return tag_range
+
 
 if __name__ == "__main__":
     tag_storage = {}

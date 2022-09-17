@@ -196,8 +196,53 @@ class SpellDataBase:
         connection.commit()
         connection.close()
 
-    def get_spell(self, spell_name: str) -> SpellInfo:
-        pass
+    def get_spell(self, spell_id: int) -> SpellInfo:
+        connection = self.open_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM spells WHERE spell_id = ?", (spell_id,))
+        # There is only 1 result in the cursor because spell_id is a prim. key
+        result = cursor.fetchone()
+        school_name = list(self.school_ids.keys())[
+            list(self.school_ids.values()).index(result[3])
+        ]
+        spell_info = SpellInfo(
+            name=result[1],
+            level=result[2],
+            school=school_name,
+            ritual=bool(result[4]),
+            cast_time=result[5],
+            range=result[6],
+            concentration=bool(result[7]),
+            duration=result[8],
+            components={'V':result[9], 'S':result[10], 'M':result[11]},
+            materials=result[12],
+            materials_tags=json.loads(result[13]),
+            description=result[14],
+            description_tags=json.loads(result[15]),
+            higher_levels=result[16],
+            higher_levels_tags=json.loads(result[17]),
+            in_class_spell_list={}
+        )
+        cursor.execute(
+            "SELECT class_id FROM spell_classes WHERE spell_id = ?", 
+            (spell_id,)
+        )
+        result = cursor.fetchall()
+        # result is a list of single-value tuples, which can be a simple list:
+        result = [v[0] for v in result]
+        class_membership = {k: v in result for (k, v) 
+            in self.class_ids.items()
+        }
+        spell_info.in_class_spell_list.update(class_membership)
+        return spell_info
+
+    def get_spell_list(self) -> dict[str, int]:
+        connection = self.open_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT spell_id, spell_name FROM spells")
+        spell_list = {name: spell_id for (spell_id, name) in cursor.fetchall()}
+        connection.close()
+        return spell_list
 
     def convert_spell_to_dict(self, spell_info: SpellInfo) -> dict:
         '''
@@ -247,11 +292,7 @@ if __name__ == '__main__':
     spell_db.add_spell(example_spell2)
     print(spell_db.class_ids)
     print(spell_db.school_ids)
-    connection = spell_db.open_connection()
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM spells")
-    print(cursor.fetchall())
-    cursor.execute("SELECT * FROM spell_classes")
-    print(cursor.fetchall())
-    connection.close()
-    pass
+    spell_list = spell_db.get_spell_list()
+    print(spell_list)
+    spell = spell_db.get_spell(spell_list['Armor of Agathys'])
+    print(spell)
