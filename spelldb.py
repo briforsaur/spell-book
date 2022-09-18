@@ -244,6 +244,48 @@ class SpellDataBase:
         connection.close()
         return spell_list
 
+    def update_spell(self, spell_id: int, spell_info: SpellInfo):
+        spell_dict = self.convert_spell_to_dict(spell_info)
+        spell_dict['spell_id'] = spell_id
+        connection = self.open_connection()
+        cursor = connection.cursor()
+        cursor.execute("""
+            UPDATE spells 
+            SET
+                spell_name = :spell_name,
+                spell_level = :spell_level,
+                spell_school = :spell_school,
+                spell_ritual = :spell_ritual,
+                spell_cast_time = :spell_cast_time,
+                spell_range = :spell_range,
+                spell_concentration = :spell_concentration,
+                spell_duration = :spell_duration,
+                spell_component_v = :spell_component_v,
+                spell_component_s = :spell_component_s,
+                spell_component_m = :spell_component_m,
+                spell_materials = :spell_materials,
+                spell_materials_tags = :spell_materials_tags,
+                spell_description = :spell_description,
+                spell_description_tags = :spell_description_tags,
+                spell_higher_levels = :spell_higher_levels,
+                spell_higher_levels_tags = :spell_higher_levels_tags
+            WHERE spell_id = :spell_id
+            """, spell_dict
+        )
+        connection.commit()
+        connection.close()
+        self.del_class_relations(spell_id)
+        self.add_class_relations(spell_id, spell_info.get_classes_as_list())
+
+    def del_class_relations(self, spell_id):
+        connection = self.open_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            "DELETE FROM spell_classes WHERE spell_id = ?", (spell_id,)
+        )
+        connection.commit()
+        connection.close()
+
     def convert_spell_to_dict(self, spell_info: SpellInfo) -> dict:
         '''
         Converts a SpellInfo object to a dictionary valid for entry.
@@ -296,3 +338,9 @@ if __name__ == '__main__':
     print(spell_list)
     spell = spell_db.get_spell(spell_list['Armor of Agathys'])
     print(spell)
+    example_spell2.in_class_spell_list.update({'Bard': True})
+    example_spell2.name = 'Armor of Songs'
+    spell_db.update_spell(spell_list['Armor of Doofus'], example_spell2)
+    spell_list = spell_db.get_spell_list()
+    print(spell_list)
+    print(spell_db.get_spell(spell_list['Armor of Songs']))
