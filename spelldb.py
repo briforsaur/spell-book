@@ -286,6 +286,17 @@ class SpellDataBase:
         connection.commit()
         connection.close()
 
+    def del_spell(self, spell_id: int):
+        # Deletes class relations first to obey foreign key constraint
+        self.del_class_relations(spell_id)
+        connection = self.open_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            "DELETE FROM spells WHERE spell_id = ?", (spell_id,)
+        )
+        connection.commit()
+        connection.close()
+
     def convert_spell_to_dict(self, spell_info: SpellInfo) -> dict:
         '''
         Converts a SpellInfo object to a dictionary valid for entry.
@@ -344,3 +355,5 @@ if __name__ == '__main__':
     spell_list = spell_db.get_spell_list()
     print(spell_list)
     print(spell_db.get_spell(spell_list['Armor of Songs']))
+    spell_db.del_spell(spell_list['Armor of Songs'])
+    print(spell_db.get_spell_list())
