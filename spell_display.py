@@ -181,6 +181,9 @@ class SpellInfoPane(ttk.Frame):
         self.lbl_ritual = ttk.Label(
             self, anchor=tk.CENTER, style='Emph.SpellInfo.TLabel'
         )
+        self.lbl_classes = ttk.Label(
+            self, anchor=tk.CENTER, style='Emph.SpellInfo.TLabel'
+        )
         self.lbl_level = ttk.Label(
             self, anchor=tk.CENTER, style='SpellInfo.TLabel'
         )
@@ -214,29 +217,31 @@ class SpellInfoPane(ttk.Frame):
         self.txt_description['state'] = 'disabled'
         # Placing the widgets on the grid
         self.lbl_name.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
-        self.lbl_ritual.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
-        self.lbl_level.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
-        self.lbl_school.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
-        self.lbl_cast_time.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
-        self.lbl_range.grid(row=3, column=1, padx=5, pady=5, sticky="ew")
-        self.lbl_duration.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
+        self.lbl_classes.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
+        self.lbl_ritual.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
+        self.lbl_level.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
+        self.lbl_school.grid(row=3, column=1, padx=5, pady=5, sticky="ew")
+        self.lbl_cast_time.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
+        self.lbl_range.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
+        self.lbl_duration.grid(row=5, column=0, padx=5, pady=5, sticky="ew")
         self.lbl_concentration.grid(
-            row=4, column=1, padx=5, pady=5, sticky="ew"
+            row=5, column=1, padx=5, pady=5, sticky="ew"
         )
         self.lbl_components.grid(
-            row=5, column=0, columnspan=2, padx=5, pady=5, sticky="ew"
+            row=6, column=0, columnspan=2, padx=5, pady=5, sticky="ew"
         )
         self.txt_components.grid(
-            row=6, column=0, columnspan=2, padx=5, pady=2, sticky="nesw"
+            row=7, column=0, columnspan=2, padx=5, pady=2, sticky="nesw"
         )
         self.txt_description.grid(
-            row=7, column=0, columnspan=2, padx=5, pady=10, sticky="nesw"
+            row=8, column=0, columnspan=2, padx=5, pady=10, sticky="nesw"
         )
 
     def update_spell_info(self, spell_info: SpellInfo):
         # Updating the labels
         self.lbl_name['text'] = spell_info.name
         self.lbl_ritual['text'] = 'Ritual' if spell_info.ritual else ''
+        self.lbl_classes['text'] = spell_info.get_classes_as_string()
         self.lbl_level['text'] = spell_info.get_level_as_string()
         self.lbl_school['text'] = spell_info.school
         self.lbl_cast_time['text'] = ('Casting Time: ' 
