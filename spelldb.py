@@ -239,7 +239,7 @@ class SpellDataBase:
     def get_spell_list(self) -> dict[str, int]:
         connection = self.open_connection()
         cursor = connection.cursor()
-        cursor.execute("SELECT spell_id, spell_name FROM spells")
+        cursor.execute("SELECT spell_id, spell_name FROM spells ORDER BY spell_name ASC")
         spell_list = {name: spell_id for (spell_id, name) in cursor.fetchall()}
         connection.close()
         return spell_list
