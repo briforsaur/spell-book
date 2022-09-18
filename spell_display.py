@@ -1,3 +1,4 @@
+from select import select
 import tkinter as tk
 import tkinter.ttk as ttk
 from typing import Dict, List, Tuple
@@ -87,13 +88,17 @@ class SpellListPane(ttk.Frame):
         self.btn_edit_spell = ttk.Button(
             self, text='Edit Spell...', command=self.edit_spell_callback
         )
+        self.btn_del_spell = ttk.Button(
+            self, text='Delete Spell', command=self.del_spell_callback
+        )
         # Placing the widgets on the grid
         self.lstbx_spell_names.grid(
-            column=0, row=0, columnspan=3, sticky="nsew"
+            column=0, row=0, columnspan=4, sticky="nsew"
         )
-        self.scrlbr_spell_names.grid(column=3, row=0, sticky="ns")
+        self.scrlbr_spell_names.grid(column=4, row=0, sticky="ns")
         self.btn_new_spell.grid(column=0, row=1)
         self.btn_edit_spell.grid(column=1, row=1)
+        self.btn_del_spell.grid(column=2, row=1)
 
     def new_spell_callback(self):
         SpellEditWindow(self)
@@ -104,9 +109,22 @@ class SpellListPane(ttk.Frame):
         spell_id = self.spell_list[spell_info.name]
         SpellEditWindow(self, spell_info, spell_id)
 
-    def update_spell_listbox(self):
+    def del_spell_callback(self):
+        spell_selected = self.get_list_selection()
+        if spell_selected:
+            spell_id = self.spell_list[spell_selected]
+            self.spell_db.del_spell(spell_id)
+            self.update_spell_listbox()
+
+    def update_spell_listbox(self, select_spell: str=''):
         self.get_spell_list()
         self.spell_namesvar.set(list(self.spell_list.keys()))
+        if select_spell:
+            select_id = list(self.spell_list.keys()).index(select_spell)
+        else:
+            select_id = 0
+        self.lstbx_spell_names.select_set(select_id)
+        self.lstbx_spell_names.event_generate("<<ListboxSelect>>")
 
     def get_list_selection(self) -> str:
         selected_items = self.lstbx_spell_names.curselection()
@@ -139,7 +157,7 @@ class SpellListPane(ttk.Frame):
             self.spell_db.update_spell(spell_id, spell_info)
         else:
             self.spell_db.add_spell(spell_info)
-        self.update_spell_listbox()
+        self.update_spell_listbox(spell_info.name)
 
 
 class SpellInfoPane(ttk.Frame):
