@@ -351,9 +351,12 @@ if __name__ == '__main__':
     print(spell)
     example_spell2.in_class_spell_list.update({'Bard': True})
     example_spell2.name = 'Armor of Songs'
+    example_spell2.higher_levels = ""
+    example_spell2.higher_levels_tags = {}
     spell_db.update_spell(spell_list['Armor of Doofus'], example_spell2)
     spell_list = spell_db.get_spell_list()
     print(spell_list)
-    print(spell_db.get_spell(spell_list['Armor of Songs']))
+    spell = spell_db.get_spell(spell_list['Armor of Songs'])
+    print(spell)
     spell_db.del_spell(spell_list['Armor of Songs'])
     print(spell_db.get_spell_list())
