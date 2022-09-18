@@ -236,6 +236,7 @@ class SpellInfoPane(ttk.Frame):
         self.txt_components.apply_text_tags(spell_info.materials_tags)
         self.txt_description.update_text_box(spell_info.description)
         self.txt_description['state'] = 'normal'
+        self.txt_description.apply_text_tags(spell_info.description_tags)
         higher_levels_text = spell_info.higher_levels
         if higher_levels_text:
             higher_levels_prefix = '\n\nAt Higher Levels. '
@@ -252,10 +253,12 @@ class SpellInfoPane(ttk.Frame):
                 spell_info.higher_levels_tags, higher_levels_line_offset, 
                 higher_levels_char_offset
             )
-            add_tag_to_dict(higher_levels_tags_shifted, 'bolditalic', higher_levels_prefix_tags)
-        self.txt_description.insert('end', higher_levels_text)
-        self.txt_description.apply_text_tags(spell_info.description_tags)
-        self.txt_description.apply_text_tags(higher_levels_tags_shifted)
+            add_tag_to_dict(
+                higher_levels_tags_shifted, 'bolditalic', 
+                higher_levels_prefix_tags
+            )
+            self.txt_description.insert('end', higher_levels_text)
+            self.txt_description.apply_text_tags(higher_levels_tags_shifted)
         self.txt_description['state'] = 'disabled'
 
 
