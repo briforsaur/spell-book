@@ -5,74 +5,8 @@ from tkinter import StringVar, font as tkFont
 
 from my_tk_extensions import ExtendedTextBox, TextEditor, add_tag_to_dict, create_tagrange, shift_tag_dict
 from spell_info import SpellInfo
+from spelldb import SpellDataBase
 
-
-spell1 = SpellInfo(
-    name= 'Bless',
-    ritual= 0,
-    level= 1,
-    school= 'Enchantment',
-    cast_time= SpellInfo.value_from_cast_time(1, 'action'),
-    duration= '1 minute',
-    range= '30 feet',
-    concentration= 1,
-    components={'V': True, 'S': True, 'M': True},
-    materials= 'a sprinkling of holy water',
-    materials_tags= {},
-    description= (
-        "You bless up to three creatures of your choice within range. "
-        "Whenever a target makes an attack roll or a saving throw before the "
-        "spell ends, the target can roll a d4 and add the number rolled to "
-        "the attack roll or saving throw."
-    ),
-    description_tags= {
-        'bold': [('1.16', '1.24')], 'italic': [('1.7', '1.14')]
-    },
-    higher_levels= (
-        "When you cast a this spell using a spell slot of 2nd level or higher,"
-        " you can target one additional creature for each slot level above "
-        "1st."
-    ),
-    higher_levels_tags= {'bold': [('1.49', '1.51')]},
-    in_class_spell_list={
-        'Bard': False, 'Cleric': True, 'Druid': False, 
-        'Paladin': False, 'Ranger': False, 'Sorceror': False,
-        'Warlock': False, 'Wizard': False
-    }
-)
-spell2 = SpellInfo(
-    name= 'False Life',
-    ritual= 0,
-    level= 1,
-    school= 'Necromancy',
-    cast_time= SpellInfo.value_from_cast_time(1, 'action'),
-    duration= '1 hour',
-    range= 'Self',
-    concentration= 0,
-    components={'V': True, 'S': True, 'M': True},
-    materials= 'a small amount of alcohol or distilled spirits',
-    materials_tags= {},
-    description=(
-        "Bolstering yourself with a necromantic facsimile of life, you gain "
-        "1d4 + 4 temporary hit points for the duration."
-    ),
-    description_tags= {
-        'bold': [('1.67', '1.74')]
-    },
-    higher_levels=(
-        "When you cast a this spell using a spell slot of 2nd level or higher,"
-        " you gain 5 additional temporary hit points for each slot level above"
-        " 1st."
-    ),
-    higher_levels_tags= {},
-    in_class_spell_list={
-            'Bard': False, 'Cleric': True, 'Druid': False, 
-            'Paladin': False, 'Ranger': False, 'Sorceror': True,
-            'Warlock': False, 'Wizard': True
-        }
-)
-
-spell_data = {spell1.name: spell1, spell2.name: spell2}
 
 class MainApplication(ttk.Frame):
     def __init__(self, parent):
@@ -123,7 +57,8 @@ class SpellListPane(ttk.Frame):
     def __init__(self, parent):
         ttk.Frame.__init__(self, parent, relief=tk.GROOVE, borderwidth=3)
         self.parent = parent
-        self.update_spell_names()
+        self.spell_db = SpellDataBase('phb_5e_spells.sqlite3')
+        self.get_spell_list()
         self.configure_layout()
         self.add_widgets()
         
@@ -132,7 +67,7 @@ class SpellListPane(ttk.Frame):
 
     def add_widgets(self):
         # Converts Python list to the list type that tk uses
-        self.spell_namesvar = tk.StringVar(value=self.spell_names)
+        self.spell_namesvar = tk.StringVar(value=list(self.spell_list.keys()))
         self.lstbx_spell_names = tk.Listbox(
             self, listvariable=self.spell_namesvar
         )
@@ -166,13 +101,12 @@ class SpellListPane(ttk.Frame):
     def edit_spell_callback(self):
         spell_selected = self.get_list_selection()
         spell_info = self.get_spell_info(spell_selected)
-        SpellEditWindow(self, spell_info)
+        spell_id = self.spell_list[spell_info.name]
+        SpellEditWindow(self, spell_info, spell_id)
 
-    def update_spell_list(self, spell_info: SpellInfo):
-        self.update_spell_db(spell_info)
-        self.update_spell_names()
-        self.spell_namesvar.set(self.spell_names)
-        print(spell_info)
+    def update_spell_listbox(self):
+        self.get_spell_list()
+        self.spell_namesvar.set(list(self.spell_list.keys()))
 
     def get_list_selection(self) -> str:
         selected_items = self.lstbx_spell_names.curselection()
@@ -183,15 +117,29 @@ class SpellListPane(ttk.Frame):
 
     def get_spell_info(self, spell_name: str) -> SpellInfo:
         spell_info = None
-        if spell_name in spell_data.keys():
-            spell_info = spell_data[spell_name]
+        if spell_name in self.spell_list.keys():
+            spell_info = self.spell_db.get_spell(self.spell_list[spell_name])
         return spell_info
 
-    def update_spell_names(self):
-        self.spell_names = sorted(spell_data.keys())
+    def get_spell_list(self):
+        self.spell_list = self.spell_db.get_spell_list()
 
-    def update_spell_db(self, spell_info: SpellInfo):
-        spell_data.update({spell_info.name: spell_info})
+    def update_spell_db(self, spell_info: SpellInfo, spell_id: int):
+        # Can't have two spells with the same name
+        if spell_info.name in self.spell_list.keys():
+            # Checking to see if their IDs are the same (meaning a spell is
+            # being updated)
+            if spell_id != self.spell_list[spell_info.name]:
+                i = 1
+                spell_info.name = spell_info.name + str(i)
+                while spell_info.name in self.spell_list.keys():
+                    i += 1
+                    spell_info.name = spell_info.name[0:-1] + str(i)
+        if spell_id is not None:
+            self.spell_db.update_spell(spell_id, spell_info)
+        else:
+            self.spell_db.add_spell(spell_info)
+        self.update_spell_listbox()
 
 
 class SpellInfoPane(ttk.Frame):
@@ -312,14 +260,17 @@ class SpellInfoPane(ttk.Frame):
 
 
 class SpellEditWindow(tk.Toplevel):
-    def __init__(self, parent, spell_info: SpellInfo = None):
+    def __init__(self, parent, spell_info: SpellInfo = None, 
+            spell_id: int = None):
         super().__init__(parent)
         self.parent = parent
+        self.spell_id = spell_id
         self.title('New Spell...')
         self.add_widgets()
         self.columnconfigure(2, weight=1)
         self.rowconfigure(0, weight=1)
         if spell_info is not None:
+            self.title('Edit Spell...')
             self.frm_spell_info.populate_fields(spell_info)
         # Defining close button behaviour
         self.protocol('WM_DELETE_WINDOW', self.dismiss) 
@@ -344,7 +295,8 @@ class SpellEditWindow(tk.Toplevel):
         self.destroy()
 
     def confirm_close(self):
-        self.parent.update_spell_list(self.frm_spell_info.get_spell_info())
+        self.parent.update_spell_db(
+            self.frm_spell_info.get_spell_info(), self.spell_id)
         self.dismiss()
 
 
