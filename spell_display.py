@@ -266,7 +266,11 @@ class SpellInfoPane(ttk.Frame):
         if materials_text:
             materials_text = '({})'.format(materials_text)
         self.txt_components.update_text_box(materials_text)
-        self.txt_components.apply_text_tags(spell_info.materials_tags)
+        # Shifting the materials text to account for the added parenthesis
+        materials_tags_shifted = shift_tag_dict(
+            spell_info.materials_tags, 0, 1
+        )
+        self.txt_components.apply_text_tags(materials_tags_shifted)
         self.txt_description.update_text_box(spell_info.description)
         self.txt_description['state'] = 'normal'
         self.txt_description.apply_text_tags(spell_info.description_tags)
