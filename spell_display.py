@@ -209,10 +209,16 @@ class SpellInfoPane(ttk.Frame):
             self, width=50, height=2, borderwidth=0, background="beige",
             font='TkTextFont', wrap="word"
         )
+        self.frm_description = ttk.Frame(self, style='SpellInfo.TFrame')
+        self.frm_description.columnconfigure(0, weight=1)
         self.txt_description = ExtendedTextBox(
-            self, width=50, borderwidth=0, background="beige",
+            self.frm_description, width=50, borderwidth=0, background="beige",
             font='TkTextFont', wrap="word"
         )
+        self.scrlbr_description = ttk.Scrollbar(
+            self.frm_description, orient=tk.VERTICAL, 
+            command=self.txt_description.yview)
+        self.txt_description['yscrollcommand'] = self.scrlbr_description.set
         self.txt_components['state'] = 'disabled'
         self.txt_description['state'] = 'disabled'
         # Placing the widgets on the grid
@@ -233,9 +239,11 @@ class SpellInfoPane(ttk.Frame):
         self.txt_components.grid(
             row=7, column=0, columnspan=2, padx=5, pady=2, sticky="nesw"
         )
-        self.txt_description.grid(
+        self.frm_description.grid(
             row=8, column=0, columnspan=2, padx=5, pady=10, sticky="nesw"
         )
+        self.txt_description.grid(row=0, column=0, padx=[0,5], sticky='nsew')
+        self.scrlbr_description.grid(row=0, column=1, sticky='nsew')
 
     def update_spell_info(self, spell_info: SpellInfo):
         # Updating the labels
