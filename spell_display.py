@@ -207,7 +207,7 @@ class SpellInfoPane(ttk.Frame):
             self, anchor=tk.CENTER, style='SpellInfo.TLabel'
         )
         self.txt_components = ExtendedTextBox(
-            self, width=50, height=2, borderwidth=0, background="beige",
+            self, width=50, height=3, borderwidth=0, background="beige",
             font='TkTextFont', wrap="word"
         )
         self.frm_description = ttk.Frame(self, style='SpellInfo.TFrame')
