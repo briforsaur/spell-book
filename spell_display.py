@@ -173,6 +173,7 @@ class SpellInfoPane(ttk.Frame):
     def configure_layout(self):
         # Two equal width, resizable columns
         self.columnconfigure([0,1], weight=1, minsize=200)
+        self.rowconfigure(8, weight=1)
 
     def add_widgets(self):
         self.lbl_name = ttk.Label(
@@ -210,7 +211,6 @@ class SpellInfoPane(ttk.Frame):
             font='TkTextFont', wrap="word"
         )
         self.frm_description = ttk.Frame(self, style='SpellInfo.TFrame')
-        self.frm_description.columnconfigure(0, weight=1)
         self.txt_description = ExtendedTextBox(
             self.frm_description, width=50, borderwidth=0, background="beige",
             font='TkTextFont', wrap="word"
@@ -242,8 +242,10 @@ class SpellInfoPane(ttk.Frame):
         self.frm_description.grid(
             row=8, column=0, columnspan=2, padx=5, pady=10, sticky="nesw"
         )
-        self.txt_description.grid(row=0, column=0, padx=[0,5], sticky='nsew')
-        self.scrlbr_description.grid(row=0, column=1, sticky='nsew')
+        self.txt_description.pack(
+            side='left', expand=True, fill='both', padx=[0,5]
+        )
+        self.scrlbr_description.pack(side='right', fill='y')
 
     def update_spell_info(self, spell_info: SpellInfo):
         # Updating the labels
