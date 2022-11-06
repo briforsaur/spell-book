@@ -162,6 +162,10 @@ class TextEditor(ttk.Frame):
         self.txt_editor = ExtendedTextBox(
             self, width=100, height=10, borderwidth=1, font='TkTextFont',
             wrap="word")
+        self.scrlbr_editor = ttk.Scrollbar(
+            self, orient=tk.VERTICAL, command=self.txt_editor.yview
+        )
+        self.txt_editor['yscrollcommand'] = self.scrlbr_editor.set
         # Placing widgets on a grid
         self.btn_boldtext.grid(row=0, column=0, padx=[5, 2.5])
         self.btn_italictext.grid(row=0, column=1, padx=2.5)
@@ -169,6 +173,9 @@ class TextEditor(ttk.Frame):
         self.btn_addbullet.grid(row=0, column=3, padx=2.5)
         self.txt_editor.grid(
             row=1, column=0, columnspan=5, padx=5, pady=5, sticky='nsew'
+        )
+        self.scrlbr_editor.grid(
+            row=1, column=5, sticky='ns'
         )
 
     def get(self):
