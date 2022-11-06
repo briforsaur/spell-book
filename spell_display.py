@@ -531,6 +531,6 @@ class NewSpellPane(ttk.Frame):
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("SpellBook")
-    root.minsize(width=600, height=75)
+    root.minsize(width=700, height=75)
     MainApplication(root).pack(side="top", fill="both", expand=True)
     root.mainloop()
