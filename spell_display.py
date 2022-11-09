@@ -64,7 +64,7 @@ class SpellListPane(ttk.Frame):
         self.add_widgets()
         
     def configure_layout(self):
-        self.rowconfigure(0, weight=1) # Row 0 can resize
+        self.rowconfigure(1, weight=1) # Row 0 can resize
 
     def add_widgets(self):
         # Converts Python list to the list type that tk uses
@@ -91,14 +91,18 @@ class SpellListPane(ttk.Frame):
         self.btn_del_spell = ttk.Button(
             self, text='Delete Spell', command=self.del_spell_callback
         )
-        # Placing the widgets on the grid
-        self.lstbx_spell_names.grid(
-            column=0, row=0, columnspan=4, sticky="nsew"
+        self.btn_filter = ttk.Button(
+            self, text='Filter...'
         )
-        self.scrlbr_spell_names.grid(column=4, row=0, sticky="ns")
-        self.btn_new_spell.grid(column=0, row=1)
-        self.btn_edit_spell.grid(column=1, row=1)
-        self.btn_del_spell.grid(column=2, row=1)
+        # Placing the widgets on the grid
+        self.btn_filter.grid(column=3, row=0)
+        self.lstbx_spell_names.grid(
+            column=0, row=1, columnspan=4, sticky="nsew"
+        )
+        self.scrlbr_spell_names.grid(column=4, row=1, sticky="ns")
+        self.btn_new_spell.grid(column=0, row=2)
+        self.btn_edit_spell.grid(column=1, row=2)
+        self.btn_del_spell.grid(column=2, row=2)
 
     def new_spell_callback(self):
         SpellEditWindow(self)
