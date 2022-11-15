@@ -7,6 +7,7 @@ from tkinter import StringVar, font as tkFont
 from my_tk_extensions import ExtendedTextBox, TextEditor, add_tag_to_dict, create_tagrange, shift_tag_dict
 from spell_info import SpellInfo
 from spelldb import SpellDataBase
+from filter_window import SpellFilterWindow
 
 
 class MainApplication(ttk.Frame):
@@ -537,31 +538,6 @@ class NewSpellPane(ttk.Frame):
         self.chk_sorceror_value.set(spell_info.in_class_spell_list['Sorceror'])
         self.chk_warlock_value.set(spell_info.in_class_spell_list['Warlock'])
         self.chk_wizard_value.set(spell_info.in_class_spell_list['Wizard'])
-
-
-class SpellFilterWindow(tk.Toplevel):
-    def __init__(self, parent, **keywords) -> None:
-        super().__init__(parent, **keywords)
-        self.parent = parent
-        self.title('Filter Spell List...')
-        self.add_widgets()
-
-    def add_widgets(self):
-        self.btn_confirm = ttk.Button(
-            self, text='Apply Filters', command=self.confirm_close
-        )
-        self.btn_cancel = ttk.Button(self, text='Cancel', command=self.dismiss)
-        # Placing the widgets on the grid
-        self.btn_confirm.grid(column=0, row=1)
-        self.btn_cancel.grid(column=1, row=1)
-
-    def dismiss(self):
-        # Returning interactivity to the other windows
-        self.grab_release()
-        self.destroy()
-
-    def confirm_close(self):
-        self.dismiss()
 
 
 if __name__ == "__main__":
