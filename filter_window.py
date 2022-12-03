@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from spell_info import SpellInfo
+from spelldb import SpellDataBase
 
 
 class SpellFilterWindow(tk.Toplevel):
@@ -33,7 +34,10 @@ class SpellFilterWindow(tk.Toplevel):
         self.destroy()
 
     def confirm_close(self):
-        print(self.frm_classes.get_chk_values())
+        class_dict = self.frm_classes.get_chk_values()
+        print(class_dict)
+        query = root.spell_db.query_spells(class_dict = class_dict)
+        print(query)
         self.dismiss()
 
 class CheckboxGroup(ttk.Frame):
@@ -70,6 +74,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title("Filter Test")
     root.minsize(width=300, height=75)
+    root.spell_db = SpellDataBase('phb_5e_spells.sqlite3')
     btn_open_window = ttk.Button(
         root, text="Filter...", command=lambda :SpellFilterWindow(root)
     )

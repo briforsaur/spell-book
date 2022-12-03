@@ -1,6 +1,7 @@
 from spell_info import SpellInfo, example_spell
 import json
 import sqlite3
+from itertools import compress
 
 class SpellDataBase:
     '''
@@ -334,6 +335,33 @@ class SpellDataBase:
                 spell_info.higher_levels_tags),
         }
         return spell_dict
+
+    def query_spells(self, *, class_dict: dict[str, bool] = {}) -> dict[str, int]:
+        query_str = """
+            SELECT spells.spell_id, spells.spell_name 
+            FROM spells """
+        classes = tuple(compress(class_dict.keys(), class_dict.values()))
+        if any(class_dict.values()) and not all(class_dict.values()):
+            query_str = query_str + """
+                JOIN spell_classes
+                ON spells.spell_id = spell_classes.spell_id
+                JOIN classes
+                ON spell_classes.class_id = classes.class_id
+                WHERE """
+            class_query = "classes.class_name IN ({seq})".format(
+                seq = ','.join(['?']*len(classes))
+            )
+            query_str = query_str + class_query
+        else:
+            query_str = query_str + " WHERE "
+        query_str = query_str + " ORDER BY spells.spell_name ASC"
+        print(query_str)
+        connection = self.open_connection()
+        cursor = connection.cursor()
+        cursor.execute(query_str, classes)
+        spell_list = {name: spell_id for (spell_id, name) in cursor.fetchall()}
+        connection.close()
+        return spell_list
 
 
 if __name__ == '__main__':
