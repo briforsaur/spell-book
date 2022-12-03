@@ -336,12 +336,13 @@ class SpellDataBase:
         }
         return spell_dict
 
-    def query_spells(self, *, class_dict: dict[str, bool] = {}) -> dict[str, int]:
+    def query_spells(self, *, class_dict: dict[str, bool] = {}, level: int = -1) -> dict[str, int]:
         query_str = """
             SELECT spells.spell_id, spells.spell_name 
             FROM spells """
         classes = tuple(compress(class_dict.keys(), class_dict.values()))
         if any(class_dict.values()) and not all(class_dict.values()):
+            query_started = True
             query_str = query_str + """
                 JOIN spell_classes
                 ON spells.spell_id = spell_classes.spell_id
@@ -352,13 +353,22 @@ class SpellDataBase:
                 seq = ','.join(['?']*len(classes))
             )
             query_str = query_str + class_query
+        if level >= 0:
+            if not query_started:
+                query_started = True
+                query_str = query_str + "WHERE "
+            else:
+                query_str = query_str + " AND "
+            level_query = "spells.spell_level = ?"
+            query_str = query_str + level_query
+            level = (level,)
         else:
-            query_str = query_str + " WHERE "
+            level = ()
         query_str = query_str + " ORDER BY spells.spell_name ASC"
         print(query_str)
         connection = self.open_connection()
         cursor = connection.cursor()
-        cursor.execute(query_str, classes)
+        cursor.execute(query_str, (*classes,*level))
         spell_list = {name: spell_id for (spell_id, name) in cursor.fetchall()}
         connection.close()
         return spell_list
