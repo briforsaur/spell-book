@@ -34,6 +34,7 @@ class SpellFilterWindow(tk.Toplevel):
         self.destroy()
 
     def confirm_close(self):
+        self.event_generate('<<ApplyFilter>>')
         class_dict = self.frm_classes.get_chk_values()
         print(class_dict)
         query = root.spell_db.query_spells(class_dict = class_dict)
@@ -70,15 +71,22 @@ class CheckboxGroup(ttk.Frame):
         return chk_values
 
 
+class _TestWindow(tk.Tk):
+    def __init__(self, spell_db: str = '', **keywords):
+        super().__init__(**keywords)
+        self.spell_db = SpellDataBase(spell_db)
+        self.btn_open_window = ttk.Button(
+            self, text="Filter...", command=lambda :SpellFilterWindow(root)
+        )
+        self.lbl_output = ttk.Label(self,text="---Output---")
+        self.btn_open_window.pack()
+        self.lbl_output.pack()
+
+    def event_handler(self):
+        print('Filter Event')
+
 if __name__ == "__main__":
-    root = tk.Tk()
+    root = _TestWindow(spell_db = 'phb_5e_spells.sqlite3')
     root.title("Filter Test")
     root.minsize(width=300, height=75)
-    root.spell_db = SpellDataBase('phb_5e_spells.sqlite3')
-    btn_open_window = ttk.Button(
-        root, text="Filter...", command=lambda :SpellFilterWindow(root)
-    )
-    lbl_output = ttk.Label(root,text="---Output---")
-    btn_open_window.pack()
-    lbl_output.pack()
     root.mainloop()
