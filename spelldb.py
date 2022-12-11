@@ -336,7 +336,8 @@ class SpellDataBase:
         }
         return spell_dict
 
-    def query_spells(self, *, class_dict: dict[str, bool] = {}, level: int = -1) -> dict[str, int]:
+    def query_spells(self, *, class_dict: dict[str, bool] = {}, 
+            level: int = -1) -> dict[str, int]:
         query_str = """
             SELECT spells.spell_id, spells.spell_name 
             FROM spells """
