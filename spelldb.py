@@ -340,8 +340,8 @@ class SpellDataBase:
         query_str = """
             SELECT spells.spell_id, spells.spell_name 
             FROM spells """
-        classes = tuple(compress(class_dict.keys(), class_dict.values()))
         if any(class_dict.values()) and not all(class_dict.values()):
+            classes = tuple(compress(class_dict.keys(), class_dict.values()))
             query_started = True
             query_str = query_str + """
                 JOIN spell_classes
@@ -353,6 +353,8 @@ class SpellDataBase:
                 seq = ','.join(['?']*len(classes))
             )
             query_str = query_str + class_query
+        else:
+            classes = ()
         if level >= 0:
             if not query_started:
                 query_started = True
