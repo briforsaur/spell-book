@@ -60,6 +60,7 @@ class SpellListPane(ttk.Frame):
         ttk.Frame.__init__(self, parent, relief=tk.GROOVE, borderwidth=3)
         self.parent = parent
         self.spell_db = SpellDataBase('phb_5e_spells.sqlite3')
+        self.filter = {'class_dict':{}, 'level':-1}
         self.get_spell_list()
         self.configure_layout()
         self.add_widgets()
@@ -145,7 +146,7 @@ class SpellListPane(ttk.Frame):
         return spell_info
 
     def get_spell_list(self):
-        self.spell_list = self.spell_db.get_spell_list()
+        self.spell_list = self.spell_db.query_spells(**self.filter)
 
     def update_spell_db(self, spell_info: SpellInfo, spell_id: int):
         # Can't have two spells with the same name
@@ -165,7 +166,13 @@ class SpellListPane(ttk.Frame):
         self.update_spell_listbox(spell_info.name)
     
     def filter_callback(self):
-        SpellFilterWindow(self)
+        self.filter_window = SpellFilterWindow(self)
+        self.filter_window.bind('<<ApplyFilter>>', self.filter_event_handler)
+
+    def filter_event_handler(self, event: tk.Event):
+        self.filter['class_dict'] = self.filter_window.frm_classes.get_chk_values()
+        self.update_spell_listbox()
+
 
 
 class SpellInfoPane(ttk.Frame):
