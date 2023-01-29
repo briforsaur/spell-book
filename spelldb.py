@@ -341,7 +341,8 @@ class SpellDataBase:
         query_str = """
             SELECT spells.spell_id, spells.spell_name 
             FROM spells """
-        if any(class_dict.values()) and not all(class_dict.values()):
+        if (class_dict is not None 
+                and any(class_dict.values()) and not all(class_dict.values())):
             classes = tuple(compress(class_dict.keys(), class_dict.values()))
             query_started = True
             query_str = query_str + """

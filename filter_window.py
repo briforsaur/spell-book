@@ -19,10 +19,16 @@ class SpellFilterWindow(tk.Toplevel):
         initial_class_chk_values = tuple(
             [True for x in range(len(SpellInfo.classes))]
         )
-        self.frm_classes = CheckboxGroup(
-            self, SpellInfo.classes, initial_class_chk_values, 2,
-            relief=tk.GROOVE
-        )
+        self.frm_classes = ComboBoxGroup(self, label='Class', 
+            values=('Any', *SpellInfo.classes))
+        # self.cmb_classes = ttk.Combobox(self)
+        # self.cmb_classes['values'] = ('Any', *SpellInfo.classes)
+        # self.cmb_classes.current(0)
+        # self.cmb_classes.state(["readonly"])
+        # self.frm_classes = CheckboxGroup(
+        #     self, SpellInfo.classes, initial_class_chk_values, 2,
+        #     relief=tk.GROOVE
+        # )
         # Placing the widgets on the grid
         self.frm_classes.grid(column=0, row=0, columnspan=2, padx=5, pady=5)
         self.btn_confirm.grid(column=4, row=5)
@@ -36,6 +42,17 @@ class SpellFilterWindow(tk.Toplevel):
     def confirm_close(self):
         self.event_generate('<<ApplyFilter>>')
         self.dismiss()
+
+    def get_filter_state(self) -> dict[str, str]:
+        class_selection = self.frm_classes.get_value()
+        class_dict = {class_name: False for class_name in SpellInfo.classes}
+        if class_selection != 'Any':
+            class_dict[class_selection] = True
+        filter_state = {
+            'Classes': class_dict
+        }
+        return filter_state
+
 
 class CheckboxGroup(ttk.Frame):
     def __init__(self, parent, labels: tuple[str], initial_values: tuple[bool],
@@ -66,6 +83,21 @@ class CheckboxGroup(ttk.Frame):
         }
         return chk_values
 
+class ComboBoxGroup(ttk.Frame):
+    def __init__(self, parent, label: str, values: tuple[str], **keywords):
+        super().__init__(parent, **keywords)
+        self.parent = parent
+        self.lbl_label = ttk.Label(self, text=label)
+        self.cmb_options = ttk.Combobox(self)
+        self.cmb_options['values'] = values
+        self.cmb_options.current(0)
+        self.cmb_options.state = 'readonly'
+        self.lbl_label.grid(column=0, row=0)
+        self.cmb_options.grid(column=1, row=0)
+
+    def get_value(self) -> str:
+        return self.cmb_options.get()
+
 
 class _TestWindow(tk.Tk):
     def __init__(self, spell_db: str = '', **keywords):
@@ -83,8 +115,10 @@ class _TestWindow(tk.Tk):
         self.filter_window.bind('<<ApplyFilter>>', self.filter_event_handler)
 
     def filter_event_handler(self, event: tk.Event):
-        class_dict = self.filter_window.frm_classes.get_chk_values()
-        result = self.spell_db.query_spells(class_dict = class_dict)
+        filter_state = self.filter_window.get_filter_state()
+        result = self.spell_db.query_spells(
+            class_dict = filter_state['Classes']
+        )
         print(result.keys())
         self.lbl_output['text'] = ', '.join(result.keys())
 
