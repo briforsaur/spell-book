@@ -1,7 +1,7 @@
 from spell_info import SpellInfo, example_spell
 import json
 import sqlite3
-from itertools import compress
+from itertools import compress, chain
 
 class SpellDataBase:
     '''
@@ -338,44 +338,59 @@ class SpellDataBase:
 
     def query_spells(self, *, class_dict: dict[str, bool] = None, 
             level: int = -1) -> dict[str, int]:
-        query_str = """
-            SELECT spells.spell_id, spells.spell_name 
-            FROM spells """
-        if (class_dict is not None 
-                and any(class_dict.values()) and not all(class_dict.values())):
-            classes = tuple(compress(class_dict.keys(), class_dict.values()))
-            query_started = True
-            query_str = query_str + """
-                JOIN spell_classes
-                ON spells.spell_id = spell_classes.spell_id
-                JOIN classes
-                ON spell_classes.class_id = classes.class_id
-                WHERE """
-            class_query = "classes.class_name IN ({seq})".format(
-                seq = ','.join(['?']*len(classes))
-            )
-            query_str = query_str + class_query
-        else:
-            classes = ()
-        if level >= 0:
-            if not query_started:
-                query_started = True
-                query_str = query_str + "WHERE "
-            else:
-                query_str = query_str + " AND "
-            level_query = "spells.spell_level = ?"
-            query_str = query_str + level_query
-            level = (level,)
-        else:
-            level = ()
-        query_str = query_str + " ORDER BY spells.spell_name ASC"
+        query_str = ("SELECT spells.spell_id, spells.spell_name\n"
+            "FROM spells\n")
+        join_statements = []
+        query_statements = []
+        parameters = []
+        (class_join, class_query, classes) = self.build_class_query(class_dict)
+        join_statements.append(class_join)
+        if classes:
+            query_statements.append(class_query)
+            parameters.append(*classes)
+        (level_query, level) = self.build_level_query(level)
+        if level:
+            query_statements.append(level_query)
+            parameters.append(*level)
+        query_str += "".join(join_statements)
+        if parameters:
+            query_str += "WHERE "
+            query_str += " AND ".join(query_statements) + "\n"
+        query_str += "ORDER BY spells.spell_name ASC"
         print(query_str)
         connection = self.open_connection()
         cursor = connection.cursor()
-        cursor.execute(query_str, (*classes,*level))
+        cursor.execute(query_str, tuple(parameters))
         spell_list = {name: spell_id for (spell_id, name) in cursor.fetchall()}
         connection.close()
         return spell_list
+    
+    def build_class_query(self, class_dict: dict[str, bool]
+            ) -> tuple[str, str, tuple[str]]:
+        join_str = ""
+        query_str = ""
+        classes = ()
+        if (class_dict is not None 
+                and any(class_dict.values()) and not all(class_dict.values())):
+            classes = tuple(compress(class_dict.keys(), class_dict.values()))
+            join_str = (
+                "JOIN spell_classes ON spells.spell_id = "
+                "spell_classes.spell_id\n"
+                "JOIN classes ON spell_classes.class_id = classes.class_id\n"
+            )
+            query_str = "classes.class_name IN ({seq})".format(
+                seq = ','.join(['?']*len(classes))
+            )
+        return (join_str, query_str, classes)
+
+    def build_level_query(self, level: int):
+        level_query = ""
+        if level >= 0:
+            level_query = "spells.spell_level = ?"
+            level = (level,)
+        else:
+            level = ()
+        return (level_query, level)
 
 
 if __name__ == '__main__':
