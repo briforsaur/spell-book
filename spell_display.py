@@ -173,6 +173,7 @@ class SpellListPane(ttk.Frame):
         filter_state = self.filter_window.get_filter_state()
         self.filter['class_dict'] = filter_state['Classes']
         self.filter['level'] = filter_state['Level']
+        self.filter['school'] = filter_state['School']
         self.update_spell_listbox()
 
 
