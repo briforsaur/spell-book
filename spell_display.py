@@ -170,7 +170,9 @@ class SpellListPane(ttk.Frame):
         self.filter_window.bind('<<ApplyFilter>>', self.filter_event_handler)
 
     def filter_event_handler(self, event: tk.Event):
-        self.filter['class_dict'] = self.filter_window.frm_classes.get_chk_values()
+        filter_state = self.filter_window.get_filter_state()
+        self.filter['class_dict'] = filter_state['Classes']
+        self.filter['level'] = filter_state['Level']
         self.update_spell_listbox()
 
 
