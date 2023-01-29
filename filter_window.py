@@ -96,7 +96,7 @@ class ComboBoxGroup(ttk.Frame):
         self.cmb_options = ttk.Combobox(self)
         self.cmb_options['values'] = values
         self.cmb_options.current(0)
-        self.cmb_options.state = 'readonly'
+        self.cmb_options.state(['readonly'])
         self.lbl_label.grid(column=0, row=0, padx=5)
         self.cmb_options.grid(column=1, row=0)
 
