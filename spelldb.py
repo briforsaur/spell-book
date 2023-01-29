@@ -336,8 +336,10 @@ class SpellDataBase:
         }
         return spell_dict
 
-    def query_spells(self, *, class_dict: dict[str, bool] = None, 
-            level: int = -1) -> dict[str, int]:
+    def query_spells(self, *, 
+            class_dict: dict[str, bool]=None, 
+            level: int=-1,
+            school: str="") -> dict[str, int]:
         query_str = ("SELECT spells.spell_id, spells.spell_name\n"
             "FROM spells\n")
         join_statements = []
@@ -352,6 +354,12 @@ class SpellDataBase:
         if level:
             query_statements.append(level_query)
             parameters.append(*level)
+        (school_join, school_query, school) = self.build_school_query(school)
+        join_statements.append(school_join)
+        if school:
+            query_statements.append(school_query)
+            parameters.append(*school)
+        # Appending all the statements to create the final query
         query_str += "".join(join_statements)
         if parameters:
             query_str += "WHERE "
@@ -383,7 +391,7 @@ class SpellDataBase:
             )
         return (join_str, query_str, classes)
 
-    def build_level_query(self, level: int):
+    def build_level_query(self, level: int) -> tuple[str, tuple[int]]:
         level_query = ""
         if level >= 0:
             level_query = "spells.spell_level = ?"
@@ -391,6 +399,19 @@ class SpellDataBase:
         else:
             level = ()
         return (level_query, level)
+
+    def build_school_query(self, school: str) -> tuple[str, str, tuple[str]]:
+        join_str = ""
+        query_str = ""
+        if school:
+            join_str = (
+                "JOIN schools ON spells.spell_school = schools.school_id\n"
+            )
+            query_str = "schools.school_name = ?"
+            school = (school,)
+        else:
+            school = ()
+        return (join_str, query_str, school)
 
 
 if __name__ == '__main__':

@@ -20,18 +20,24 @@ class SpellFilterWindow(tk.Toplevel):
             [True for x in range(len(SpellInfo.classes))]
         )
         self.frm_classes = ComboBoxGroup(
-            self, label='Class', values=('Any', *SpellInfo.classes))
+            self, label='Class', values=('Any', *SpellInfo.classes)
+        )
         self.frm_level = ComboBoxGroup(
-            self, label='Level', values=('Any', *SpellInfo.levels))
+            self, label='Level', values=('Any', *SpellInfo.levels)
+        )
+        self.frm_school = ComboBoxGroup(
+            self, label='School', values=('Any', *SpellInfo.schools)
+        )
         # self.frm_classes = CheckboxGroup(
         #     self, SpellInfo.classes, initial_class_chk_values, 2,
         #     relief=tk.GROOVE
         # )
         # Placing the widgets on the grid
-        self.frm_classes.grid(column=0, row=0, columnspan=2, padx=5, pady=5)
-        self.frm_level.grid(column=0, row=1, columnspan=2, padx=5, pady=5)
-        self.btn_confirm.grid(column=4, row=5)
-        self.btn_cancel.grid(column=5, row=5)
+        self.frm_classes.grid(column=0, row=0, columnspan=3, padx=5, pady=5)
+        self.frm_level.grid(column=0, row=1, columnspan=3, padx=5, pady=5)
+        self.frm_school.grid(column=0, row=2, columnspan=3, padx=5, pady=5)
+        self.btn_confirm.grid(column=1, row=5)
+        self.btn_cancel.grid(column=2, row=5)
 
     def dismiss(self):
         # Returning interactivity to the other windows
@@ -46,14 +52,16 @@ class SpellFilterWindow(tk.Toplevel):
         class_dict = {class_name: False for class_name in SpellInfo.classes}
         level = -1
         class_selection = self.frm_classes.get_value()
-        level_str = self.frm_level.get_value()
         if class_selection != 'Any':
             class_dict[class_selection] = True
+        level_str = self.frm_level.get_value()
         if level_str != 'Any':
             level = SpellInfo.level_string_to_number(level_str)
+        school = self.frm_school.get_value()
         filter_state = {
             'Classes': class_dict,
-            'Level': level
+            'Level': level,
+            'School': school
         }
         
         return filter_state
@@ -123,7 +131,8 @@ class _TestWindow(tk.Tk):
         filter_state = self.filter_window.get_filter_state()
         result = self.spell_db.query_spells(
             class_dict=filter_state['Classes'], 
-            level=filter_state['Level']
+            level=filter_state['Level'],
+            school=filter_state['School']
         )
         print(result.keys())
         self.lbl_output['text'] = ', '.join(result.keys())
