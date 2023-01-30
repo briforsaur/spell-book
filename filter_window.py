@@ -58,6 +58,8 @@ class SpellFilterWindow(tk.Toplevel):
         if level_str != 'Any':
             level = SpellInfo.level_string_to_number(level_str)
         school = self.frm_school.get_value()
+        if school == 'Any':
+            school = ""
         filter_state = {
             'Classes': class_dict,
             'Level': level,
