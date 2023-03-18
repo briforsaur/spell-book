@@ -29,6 +29,7 @@ The only prerequisite for this project is a Python3 installation.
 4. Run `python spell_display.py` in the terminal.
 
 ## User Guide
+
 ![The main app window](https://user-images.githubusercontent.com/66395421/226114190-06d909f6-6cda-491d-8579-a35d5db581d9.png)
 
 When you run the app for the first time, you should be greeted with a window similar to the one above.
@@ -47,6 +48,7 @@ Selecting a spell from the list displays all the spell information in the pane o
 
 ### Creating New Spells/Editing Existing Spells
 The New/Edit Spell dialog windows are the same, except when Edit Spell is selected, the window's fields will be pre-filled.
+
 ![image](https://user-images.githubusercontent.com/66395421/226114652-06b738f4-3412-4b33-bfe3-639ed7caa15d.png)
 ![image](https://user-images.githubusercontent.com/66395421/226114669-e3d77a46-7f8b-4124-8626-208fb0fdec8e.png)
 
@@ -118,6 +120,7 @@ In the spell display window, the "At Higher Levels." text will be added automati
 
 ### Filtering Spells
 Clicking the "Filter..." button at the top of the app will open a small dialog window.
+
 ![The filter dialog window in its default state.](https://user-images.githubusercontent.com/66395421/226117086-eb0e4b99-f221-4f47-b512-1b08b6d4553c.png)
 
 By default the filter is set to select all spells.
