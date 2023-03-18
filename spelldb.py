@@ -370,7 +370,6 @@ class SpellDataBase:
             query_str += "WHERE "
             query_str += " AND ".join(query_statements) + "\n"
         query_str += "ORDER BY spells.spell_name ASC"
-        print(query_str)
         connection = self.open_connection()
         cursor = connection.cursor()
         cursor.execute(query_str, tuple(parameters))

@@ -16,9 +16,6 @@ class SpellFilterWindow(tk.Toplevel):
             self, text='Apply Filters', command=self.confirm_close
         )
         self.btn_cancel = ttk.Button(self, text='Cancel', command=self.dismiss)
-        initial_class_chk_values = tuple(
-            [True for x in range(len(SpellInfo.classes))]
-        )
         self.frm_classes = ComboBoxGroup(
             self, label='Class', values=('Any', *SpellInfo.classes)
         )
@@ -32,10 +29,6 @@ class SpellFilterWindow(tk.Toplevel):
         self.chk_ritual = ttk.Checkbutton(
             self, text='Ritual', variable=self.chk_ritual_value
         )
-        # self.frm_classes = CheckboxGroup(
-        #     self, SpellInfo.classes, initial_class_chk_values, 2,
-        #     relief=tk.GROOVE
-        # )
         # Placing the widgets on the grid
         self.frm_classes.grid(column=0, row=0, columnspan=3, padx=5, pady=5)
         self.frm_level.grid(column=0, row=1, columnspan=3, padx=5, pady=5)
