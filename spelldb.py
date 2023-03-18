@@ -339,7 +339,8 @@ class SpellDataBase:
     def query_spells(self, *, 
             class_dict: dict[str, bool]=None, 
             level: int=-1,
-            school: str="") -> dict[str, int]:
+            school: str="",
+            ritual: int=0) -> dict[str, int]:
         query_str = ("SELECT spells.spell_id, spells.spell_name\n"
             "FROM spells\n")
         join_statements = []
@@ -359,6 +360,10 @@ class SpellDataBase:
         if school:
             query_statements.append(school_query)
             parameters.append(*school)
+        if ritual:
+            ritual_query = "spells.spell_ritual = ?"
+            query_statements.append(ritual_query)
+            parameters.append(ritual)
         # Appending all the statements to create the final query
         query_str += "".join(join_statements)
         if parameters:

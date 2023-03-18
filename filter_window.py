@@ -28,6 +28,10 @@ class SpellFilterWindow(tk.Toplevel):
         self.frm_school = ComboBoxGroup(
             self, label='School', values=('Any', *SpellInfo.schools)
         )
+        self.chk_ritual_value = tk.IntVar(value=False)
+        self.chk_ritual = ttk.Checkbutton(
+            self, text='Ritual', variable=self.chk_ritual_value
+        )
         # self.frm_classes = CheckboxGroup(
         #     self, SpellInfo.classes, initial_class_chk_values, 2,
         #     relief=tk.GROOVE
@@ -36,6 +40,7 @@ class SpellFilterWindow(tk.Toplevel):
         self.frm_classes.grid(column=0, row=0, columnspan=3, padx=5, pady=5)
         self.frm_level.grid(column=0, row=1, columnspan=3, padx=5, pady=5)
         self.frm_school.grid(column=0, row=2, columnspan=3, padx=5, pady=5)
+        self.chk_ritual.grid(column=0, row=3, columnspan=3, padx=5, pady=5)
         self.btn_confirm.grid(column=1, row=5)
         self.btn_cancel.grid(column=2, row=5)
 
@@ -63,7 +68,8 @@ class SpellFilterWindow(tk.Toplevel):
         filter_state = {
             'Classes': class_dict,
             'Level': level,
-            'School': school
+            'School': school,
+            'Ritual': self.chk_ritual_value.get()
         }
         
         return filter_state
@@ -134,7 +140,8 @@ class _TestWindow(tk.Tk):
         result = self.spell_db.query_spells(
             class_dict=filter_state['Classes'], 
             level=filter_state['Level'],
-            school=filter_state['School']
+            school=filter_state['School'],
+            ritual=filter_state['Ritual']
         )
         print(result.keys())
         self.lbl_output['text'] = ', '.join(result.keys())
